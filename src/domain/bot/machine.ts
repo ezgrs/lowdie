@@ -5,7 +5,6 @@ import { rockPaperScissorsMoves } from "../models/rockPaperScissors";
 
 type MachineInput = { 
     rng: RNG,
-    onInvalid?: (() => void) | undefined,
 }
 
 type MachineContext = MachineInput & {}
@@ -37,7 +36,10 @@ export default createMachine({
                     },
                     {
                         target: "menu",
-                        actions: "onInvalid",
+                        actions: emit({
+                            type: "notification",
+                            label: "menu.invalid",
+                        }),
                     },
                 ],
             },
@@ -67,9 +69,6 @@ export default createMachine({
 }, {
     guards: {
         didUserChoseRockPaperScissors: ({event}) => event.type == "ANSWER" && event.value == "Rock-paper-scissors",
-    },
-    actions: {
-        onInvalid: ({ context }) => context.onInvalid?.(),
     },
 })
 
