@@ -1,4 +1,4 @@
-import { createMachine } from "xstate";
+import { createMachine, emit } from "xstate";
 import rockPaperScissorsMachine from "../games/rockPaperScissors/machine";
 import { RNG } from "../services/rng";
 import { rockPaperScissorsMoves } from "../models/rockPaperScissors";
@@ -17,11 +17,16 @@ export default createMachine({
         context: MachineContext;
         events: MachineEvent;
         input: MachineInput;
+        emitted: {type: "notification"; label: string }
         guards: {type: "didUserChoseRockPaperScissors"},
     },
     id: "bot",
     context: ({input}) => input,
     initial: "menu",
+    entry: emit({
+        type: "notification",
+        label: "menu.welcome",
+    }),
     states: {
         menu: {
             on: {
