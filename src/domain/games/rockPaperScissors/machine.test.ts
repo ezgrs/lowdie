@@ -3,16 +3,14 @@ import machine from "./machine"
 import { RNG } from "../../services/rng"
 import { RockPaperScissorsMove } from "../../models/rockPaperScissors"
 
-
-
 const botCases: RockPaperScissorsMove[] = ["rock", "paper", "scissors"]
 const playerCases: {
-    move: RockPaperScissorsMove,
-    text: string,
+    move: RockPaperScissorsMove
+    text: string
 }[] = [
-    {move: "rock", text: "Rock"},
-    {move: "paper", text: "Paper"},
-    {move: "scissors", text: "Scissors"},
+    { move: "rock", text: "Rock" },
+    { move: "paper", text: "Paper" },
+    { move: "scissors", text: "Scissors" },
 ]
 
 describe.each(botCases)("when bot has chosen %s", (botMove) => {
@@ -23,7 +21,7 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
     beforeEach(() => {
         onInvalid = jest.fn()
         rngChoose = jest.fn()
-        const rng: RNG = {choose: rngChoose}
+        const rng: RNG = { choose: rngChoose }
         actor = createActor(machine, {
             input: {
                 parentRef: undefined,
@@ -42,8 +40,8 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
     describe("when player is choosing a move", () => {
         test.each(playerCases)(
             "should accept $text as $move",
-            ({move: userMove, text: userText}) => {
-                actor.send({type: "ANSWER", value: userText})
+            ({ move: userMove, text: userText }) => {
+                actor.send({ type: "ANSWER", value: userText })
 
                 const snapshot = actor.getSnapshot()
                 expect(snapshot.value).toBe("askForRetry")
@@ -57,7 +55,7 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
             },
         )
         test("should reject invalid input", () => {
-            actor.send({type: "ANSWER", value: "..."})
+            actor.send({ type: "ANSWER", value: "..." })
 
             const snapshot = actor.getSnapshot()
             expect(snapshot.value).toBe("waitingForUser")
@@ -71,16 +69,16 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
     })
     describe.each(playerCases)(
         "when player has chosen $move",
-        ({move: userMove, text: userText}) => {
+        ({ move: userMove, text: userText }) => {
             let snapshot: any
             beforeEach(() => {
-                actor.send({type: "ANSWER", value: userText})
+                actor.send({ type: "ANSWER", value: userText })
             })
             test.each(botCases)(
                 "should accept a restart with %s",
                 (nextBotMove) => {
-                     rngChoose.mockReturnValue(nextBotMove)
-                    actor.send({type: "ANSWER", value: "Yes"})
+                    rngChoose.mockReturnValue(nextBotMove)
+                    actor.send({ type: "ANSWER", value: "Yes" })
                     snapshot = actor.getSnapshot()
 
                     expect(snapshot.value).toBe("waitingForUser")
@@ -95,7 +93,7 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
             test("should accept a cancel", () => {
                 let snapshot: any
 
-                actor.send({type: "ANSWER", value: "No"})
+                actor.send({ type: "ANSWER", value: "No" })
                 snapshot = actor.getSnapshot()
 
                 expect(snapshot.value).toBe("done")
@@ -110,7 +108,3 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
         },
     )
 })
-
-
-
-

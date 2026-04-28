@@ -1,12 +1,12 @@
-import { createActor } from "xstate";
-import { IO } from "../domain/services/io";
-import { RNG } from "../domain/services/rng";
-import botMachine from "../domain/bot/machine";
+import { createActor } from "xstate"
+import { IO } from "../domain/services/io"
+import { RNG } from "../domain/services/rng"
+import botMachine from "../domain/bot/machine"
 
 type BotRunnerArgs = {
-  io: IO;
-  rng: RNG;
-};
+    io: IO
+    rng: RNG
+}
 
 export type BotInstance = {
     dispose(): Promise<void>
@@ -15,9 +15,9 @@ export type BotInstance = {
 export function runBot({ io, rng }: BotRunnerArgs): Promise<void> {
     return new Promise((resolve) => {
         const actor = createActor(botMachine, {
-            input: {rng},
+            input: { rng },
         })
-        const notificationSubscription = actor.on('*', async (event) => {
+        const notificationSubscription = actor.on("*", async (event) => {
             console.log(event)
             switch (event.label) {
                 case "menu.welcome":
@@ -31,8 +31,8 @@ export function runBot({ io, rng }: BotRunnerArgs): Promise<void> {
             }
             const message = await io.input()
             console.log(message)
-            actor.send({type: "ANSWER", value: message})
+            actor.send({ type: "ANSWER", value: message })
         })
         actor.start()
-    });
+    })
 }

@@ -1,3 +1,3 @@
 export interface RNG {
-    choose<T>(values: readonly T[]): T;
+    choose<T>(values: readonly T[]): T
 }

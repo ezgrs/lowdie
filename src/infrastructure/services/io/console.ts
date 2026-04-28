@@ -1,4 +1,4 @@
-import { IO } from "../../../domain/services/io";
+import { IO } from "../../../domain/services/io"
 
 export class ConsoleIO implements IO {
     stdin: NodeJS.ReadStream

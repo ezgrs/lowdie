@@ -1,21 +1,34 @@
-import { ActionFunction, assign, emit, sendTo, setup } from "xstate";
-import { RockPaperScissorsMove } from "../../models/rockPaperScissors";
-import { RNG } from "../../services/rng";
-import { BotActorRef, ModuleEvent } from "../../bot/machine";
+import { ActionFunction, assign, emit, sendTo, setup } from "xstate"
+import { RockPaperScissorsMove } from "../../models/rockPaperScissors"
+import { RNG } from "../../services/rng"
+import { BotActorRef, ModuleEvent } from "../../bot/machine"
 
-type Event = { type: 'ANSWER'; value: string };
+type Event = { type: "ANSWER"; value: string }
 
 type MachineInput = {
-    parentRef: BotActorRef | undefined,
-    rng: RNG,
-    botMove: RockPaperScissorsMove,
+    parentRef: BotActorRef | undefined
+    rng: RNG
+    botMove: RockPaperScissorsMove
 }
 
 type MachineContext = MachineInput & {
-    userMove: RockPaperScissorsMove | undefined,
+    userMove: RockPaperScissorsMove | undefined
 }
 
-function emitOrSend(parentRef: BotActorRef | undefined, data: ModuleEvent): ActionFunction<MachineContext, any, ModuleEvent, any, any, any, any, any, any> {
+function emitOrSend(
+    parentRef: BotActorRef | undefined,
+    data: ModuleEvent,
+): ActionFunction<
+    MachineContext,
+    any,
+    ModuleEvent,
+    any,
+    any,
+    any,
+    any,
+    any,
+    any
+> {
     if (parentRef == null) {
         return emit(data)
     }
@@ -29,27 +42,30 @@ export default setup({
         input: {} as MachineInput,
     },
     guards: {
-        didUserSelectRock: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "rock",
-        didUserSelectPaper: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "paper",
-        didUserSelectScissors: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "scissors",
-        didUserContinue: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "yes",
-        didUserCancel: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "no",
+        didUserSelectRock: ({ event }) =>
+            event.type == "ANSWER" && event.value.toLowerCase() == "rock",
+        didUserSelectPaper: ({ event }) =>
+            event.type == "ANSWER" && event.value.toLowerCase() == "paper",
+        didUserSelectScissors: ({ event }) =>
+            event.type == "ANSWER" && event.value.toLowerCase() == "scissors",
+        didUserContinue: ({ event }) =>
+            event.type == "ANSWER" && event.value.toLowerCase() == "yes",
+        didUserCancel: ({ event }) =>
+            event.type == "ANSWER" && event.value.toLowerCase() == "no",
     },
 }).createMachine({
-    context: ({input}) => ({
+    context: ({ input }) => ({
         rng: input.rng,
         botMove: input.botMove,
         parentRef: input.parentRef,
         userMove: undefined,
     }),
     initial: "waitingForUser",
-    entry: ({ context }) => emitOrSend(
-        context.parentRef,
-        {
+    entry: ({ context }) =>
+        emitOrSend(context.parentRef, {
             type: "moduleNotification",
             label: "rps.welcome",
-        },
-    ),
+        }),
     states: {
         waitingForUser: {
             on: {
@@ -57,17 +73,17 @@ export default setup({
                     {
                         guard: "didUserSelectRock",
                         target: "askForRetry",
-                        actions: assign({userMove: () => "rock"}),
+                        actions: assign({ userMove: () => "rock" }),
                     },
                     {
                         guard: "didUserSelectPaper",
                         target: "askForRetry",
-                        actions: assign({userMove: () => "paper"}),
+                        actions: assign({ userMove: () => "paper" }),
                     },
                     {
                         guard: "didUserSelectScissors",
                         target: "askForRetry",
-                        actions: assign({userMove: () => "scissors"}),
+                        actions: assign({ userMove: () => "scissors" }),
                     },
                     {
                         actions: () => {},
@@ -84,7 +100,11 @@ export default setup({
                         actions: assign({
                             userMove: () => undefined,
                             botMove: ({ context }) =>
-                                context.rng.choose(["rock", "paper", "scissors"]),
+                                context.rng.choose([
+                                    "rock",
+                                    "paper",
+                                    "scissors",
+                                ]),
                         }),
                     },
                     {

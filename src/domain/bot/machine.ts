@@ -1,36 +1,38 @@
-import { ActorRef, emit, setup, Snapshot } from "xstate";
-import rockPaperScissorsMachine from "../games/rockPaperScissors/machine";
-import { RNG } from "../services/rng";
-import { rockPaperScissorsMoves } from "../models/rockPaperScissors";
+import { ActorRef, emit, setup, Snapshot } from "xstate"
+import rockPaperScissorsMachine from "../games/rockPaperScissors/machine"
+import { RNG } from "../services/rng"
+import { rockPaperScissorsMoves } from "../models/rockPaperScissors"
 
 type MachineInput = { rng: RNG }
 
 export type ModuleEvent = {
-  type: 'moduleNotification',
-  label: string,
+    type: "moduleNotification"
+    label: string
 }
 export type BotActorRef = ActorRef<Snapshot<any>, ModuleEvent>
 
 type MachineContext = MachineInput & {}
 
-type MachineEvent = ModuleEvent | { type: 'ANSWER'; value: string }
+type MachineEvent = ModuleEvent | { type: "ANSWER"; value: string }
 
 export default setup({
     types: {} as {
-        context: MachineContext;
-        events: MachineEvent;
-        input: MachineInput;
-        emitted: {type: "notification"; label: string}
-        guards: {type: "didUserChoseRockPaperScissors"},
+        context: MachineContext
+        events: MachineEvent
+        input: MachineInput
+        emitted: { type: "notification"; label: string }
+        guards: { type: "didUserChoseRockPaperScissors" }
     },
     guards: {
-        didUserChoseRockPaperScissors: ({event}) => {
-            return event.type == "ANSWER" && event.value == "Rock-paper-scissors";
+        didUserChoseRockPaperScissors: ({ event }) => {
+            return (
+                event.type == "ANSWER" && event.value == "Rock-paper-scissors"
+            )
         },
     },
-    actors: {rockPaperScissorsMachine},
+    actors: { rockPaperScissorsMachine },
 }).createMachine({
-    context: ({input}) => input,
+    context: ({ input }) => input,
     initial: "menu",
     entry: emit({
         type: "notification",
@@ -58,7 +60,7 @@ export default setup({
             invoke: {
                 id: "rockPaperScissorsModule",
                 src: "rockPaperScissorsMachine",
-                input: ({context, self}) => ({
+                input: ({ context, self }) => ({
                     botMove: context.rng.choose(rockPaperScissorsMoves),
                     rng: context.rng,
                     parentRef: self,
@@ -70,18 +72,20 @@ export default setup({
             },
             on: {
                 ANSWER: {
-                    actions: ({event, self}) => {
-                        self.getSnapshot().children["rockPaperScissorsModule"]?.send(event)
+                    actions: ({ event, self }) => {
+                        self.getSnapshot().children[
+                            "rockPaperScissorsModule"
+                        ]?.send(event)
                     },
                 },
                 moduleNotification: {
-                    actions: ({event}) => emit({
-                        type: "notification",
-                        label: event.label,
-                    }),
+                    actions: ({ event }) =>
+                        emit({
+                            type: "notification",
+                            label: event.label,
+                        }),
                 },
             },
-        },   
+        },
     },
 })
-
