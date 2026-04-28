@@ -1,11 +1,12 @@
-import { assign, createMachine } from "xstate";
+import { ActionFunction, assign, emit, sendTo, setup } from "xstate";
 import { RockPaperScissorsMove } from "../../models/rockPaperScissors";
 import { RNG } from "../../services/rng";
-
+import { BotActorRef, ModuleEvent } from "../../bot/machine";
 
 type Event = { type: 'ANSWER'; value: string };
 
-type MachineInput = { 
+type MachineInput = {
+    parentRef: BotActorRef | undefined,
     rng: RNG,
     botMove: RockPaperScissorsMove,
 }
@@ -14,25 +15,41 @@ type MachineContext = MachineInput & {
     userMove: RockPaperScissorsMove | undefined,
 }
 
-export default createMachine({
-    types: {} as {
-        context: MachineContext;
-        events: Event;
-        input: MachineInput,
-        guards: |
-            {type: "didUserSelectRock"} |
-            {type: "didUserSelectPaper"} |
-            {type: "didUserSelectScissors"} |
-            {type: "didUserContinue"} |
-            {type: "didUserCancel"},
+function emitOrSend(parentRef: BotActorRef | undefined, data: ModuleEvent): ActionFunction<MachineContext, any, ModuleEvent, any, any, any, any, any, any> {
+    if (parentRef == null) {
+        return emit(data)
+    }
+    return sendTo(parentRef, data)
+}
+
+export default setup({
+    types: {
+        context: {} as MachineContext,
+        events: {} as Event,
+        input: {} as MachineInput,
     },
-    id: "ticTacToe",
+    guards: {
+        didUserSelectRock: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "rock",
+        didUserSelectPaper: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "paper",
+        didUserSelectScissors: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "scissors",
+        didUserContinue: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "yes",
+        didUserCancel: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "no",
+    },
+}).createMachine({
     context: ({input}) => ({
         rng: input.rng,
         botMove: input.botMove,
+        parentRef: input.parentRef,
         userMove: undefined,
     }),
     initial: "waitingForUser",
+    entry: ({ context }) => emitOrSend(
+        context.parentRef,
+        {
+            type: "moduleNotification",
+            label: "rps.welcome",
+        },
+    ),
     states: {
         waitingForUser: {
             on: {
@@ -80,13 +97,5 @@ export default createMachine({
         done: {
             type: "final",
         },
-    },
-}, {
-    guards: {
-        didUserSelectRock: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "rock",
-        didUserSelectPaper: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "paper",
-        didUserSelectScissors: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "scissors",
-        didUserContinue: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "yes",
-        didUserCancel: ({event}) => event.type == "ANSWER" && event.value.toLowerCase() == "no",
     },
 })

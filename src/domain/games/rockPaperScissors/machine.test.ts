@@ -26,6 +26,7 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
         const rng: RNG = {choose: rngChoose}
         actor = createActor(machine, {
             input: {
+                parentRef: undefined,
                 rng: rng,
                 botMove: botMove,
             },
@@ -50,6 +51,7 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
                     botMove: botMove,
                     userMove: userMove,
                     rng: expect.any(Object),
+                    parentRef: undefined,
                 })
                 expect(onInvalid).not.toHaveBeenCalled()
             },
@@ -63,6 +65,7 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
                 botMove: botMove,
                 userMove: undefined,
                 rng: expect.any(Object),
+                parentRef: undefined,
             })
         })
     })
@@ -85,6 +88,7 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
                         botMove: nextBotMove,
                         userMove: undefined,
                         rng: expect.any(Object),
+                        parentRef: undefined,
                     })
                 },
             )
@@ -99,6 +103,7 @@ describe.each(botCases)("when bot has chosen %s", (botMove) => {
                     botMove: botMove,
                     userMove: userMove,
                     rng: expect.any(Object),
+                    parentRef: undefined,
                 })
                 expect(onInvalid).not.toHaveBeenCalled()
             })

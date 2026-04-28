@@ -1,25 +1,35 @@
-import { createMachine, emit } from "xstate";
+import { ActorRef, emit, setup, Snapshot } from "xstate";
 import rockPaperScissorsMachine from "../games/rockPaperScissors/machine";
 import { RNG } from "../services/rng";
 import { rockPaperScissorsMoves } from "../models/rockPaperScissors";
 
-type MachineInput = { 
-    rng: RNG,
+type MachineInput = { rng: RNG }
+
+export type ModuleEvent = {
+  type: 'moduleNotification',
+  label: string,
 }
+export type BotActorRef = ActorRef<Snapshot<any>, ModuleEvent>
 
 type MachineContext = MachineInput & {}
 
-type MachineEvent = { type: 'ANSWER'; value: string }
+type MachineEvent = ModuleEvent | { type: 'ANSWER'; value: string }
 
-export default createMachine({
+export default setup({
     types: {} as {
         context: MachineContext;
         events: MachineEvent;
         input: MachineInput;
-        emitted: {type: "notification"; label: string }
+        emitted: {type: "notification"; label: string}
         guards: {type: "didUserChoseRockPaperScissors"},
     },
-    id: "bot",
+    guards: {
+        didUserChoseRockPaperScissors: ({event}) => {
+            return event.type == "ANSWER" && event.value == "Rock-paper-scissors";
+        },
+    },
+    actors: {rockPaperScissorsMachine},
+}).createMachine({
     context: ({input}) => input,
     initial: "menu",
     entry: emit({
@@ -46,29 +56,32 @@ export default createMachine({
         },
         rockPaperScissors: {
             invoke: {
-                id: "rockPaperScissorsMachine",
-                src: rockPaperScissorsMachine,
-                input: ({context}) => ({
+                id: "rockPaperScissorsModule",
+                src: "rockPaperScissorsMachine",
+                input: ({context, self}) => ({
                     botMove: context.rng.choose(rockPaperScissorsMoves),
                     rng: context.rng,
+                    parentRef: self,
+                    userMove: undefined,
                 }),
                 onDone: {
-                    target: "menu"
+                    target: "menu",
                 },
             },
             on: {
                 ANSWER: {
-                    actions: ({ event, self }) => {
-                        self.getSnapshot().children["rockPaperScissorsMachine"]?.send(event)
+                    actions: ({event, self}) => {
+                        self.getSnapshot().children["rockPaperScissorsModule"]?.send(event)
                     },
+                },
+                moduleNotification: {
+                    actions: ({event}) => emit({
+                        type: "notification",
+                        label: event.label,
+                    }),
                 },
             },
         },   
-    },
-
-}, {
-    guards: {
-        didUserChoseRockPaperScissors: ({event}) => event.type == "ANSWER" && event.value == "Rock-paper-scissors",
     },
 })
 
