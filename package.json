@@ -19,10 +19,12 @@
     "main": "index.js",
     "scripts": {
         "test": "jest",
-        "format": "prettier --write src"
+        "format": "prettier --write src",
+        "cli": "npx ts-node src/interfaces/cli/index.ts"
     },
     "dependencies": {
         "@reduxjs/toolkit": "^2.11.2",
+        "i18next": "^26.0.8",
         "xstate": "^5.30.0"
     },
     "devDependencies": {

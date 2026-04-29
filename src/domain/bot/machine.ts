@@ -2,6 +2,7 @@ import { ActorRef, emit, setup, Snapshot } from "xstate"
 import rockPaperScissorsMachine from "../games/rockPaperScissors/machine"
 import { RNG } from "../services/rng"
 import { rockPaperScissorsMoves } from "../models/rockPaperScissors"
+import { TranslationKey } from "../../interfaces/i18n"
 
 type MachineInput = { rng: RNG }
 
@@ -20,7 +21,9 @@ export default setup({
         context: MachineContext
         events: MachineEvent
         input: MachineInput
-        emitted: { type: "notification"; label: string }
+        emitted:
+            | { type: "notification"; label: TranslationKey }
+            | { type: "stop" }
         guards: { type: "didUserChoseRockPaperScissors" }
     },
     guards: {
