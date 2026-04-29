@@ -2,7 +2,7 @@ import { ActorRef, emit, setup, Snapshot } from "xstate"
 import rockPaperScissorsMachine from "../games/rockPaperScissors/machine"
 import { RNG } from "../services/rng"
 import { rockPaperScissorsMoves } from "../models/rockPaperScissors"
-import { TranslationKey } from "../../interfaces/i18n"
+import { t, TranslationKey } from "../../interfaces/i18n"
 
 type MachineInput = { rng: RNG }
 
@@ -28,9 +28,7 @@ export default setup({
     },
     guards: {
         didUserChoseRockPaperScissors: ({ event }) => {
-            return (
-                event.type == "ANSWER" && event.value == "Rock-paper-scissors"
-            )
+            return event.type == "ANSWER" && event.value == t("rps:title")
         },
     },
     actors: { rockPaperScissorsMachine },
@@ -39,7 +37,7 @@ export default setup({
     initial: "menu",
     entry: emit({
         type: "notification",
-        label: "menu.welcome",
+        label: "bot:menu.welcome",
     }),
     states: {
         menu: {
@@ -53,7 +51,7 @@ export default setup({
                         target: "menu",
                         actions: emit({
                             type: "notification",
-                            label: "menu.invalid",
+                            label: "bot:menu.invalid",
                         }),
                     },
                 ],

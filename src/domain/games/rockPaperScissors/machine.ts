@@ -2,6 +2,7 @@ import { ActionFunction, assign, emit, sendTo, setup } from "xstate"
 import { RockPaperScissorsMove } from "../../models/rockPaperScissors"
 import { RNG } from "../../services/rng"
 import { BotActorRef, ModuleEvent } from "../../bot/machine"
+import { t } from "../../../interfaces/i18n"
 
 type Event = { type: "ANSWER"; value: string }
 
@@ -43,15 +44,20 @@ export default setup({
     },
     guards: {
         didUserSelectRock: ({ event }) =>
-            event.type == "ANSWER" && event.value.toLowerCase() == "rock",
+            event.type == "ANSWER" &&
+            event.value.toLowerCase() == t("rps:rock"),
         didUserSelectPaper: ({ event }) =>
-            event.type == "ANSWER" && event.value.toLowerCase() == "paper",
+            event.type == "ANSWER" &&
+            event.value.toLowerCase() == t("rps:paper"),
         didUserSelectScissors: ({ event }) =>
-            event.type == "ANSWER" && event.value.toLowerCase() == "scissors",
+            event.type == "ANSWER" &&
+            event.value.toLowerCase() == t("rps:scissors"),
         didUserContinue: ({ event }) =>
-            event.type == "ANSWER" && event.value.toLowerCase() == "yes",
+            event.type == "ANSWER" &&
+            event.value.toLowerCase() == t("common:yes"),
         didUserCancel: ({ event }) =>
-            event.type == "ANSWER" && event.value.toLowerCase() == "no",
+            event.type == "ANSWER" &&
+            event.value.toLowerCase() == t("common:no"),
     },
 }).createMachine({
     context: ({ input }) => ({

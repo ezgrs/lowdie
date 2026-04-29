@@ -1,17 +1,35 @@
 import i18n from "i18next"
-import en from "./locales/en/bot.json"
+import enBot from "./locales/en/bot.json"
+import enCommon from "./locales/en/common.json"
+import enRps from "./locales/en/rps.json"
+
+import ptBot from "./locales/pt/bot.json"
+import ptCommon from "./locales/pt/common.json"
+import ptRps from "./locales/pt/rps.json"
 
 i18n.init({
     lng: "pt",
     fallbackLng: "en",
     resources: {
-        en: { bot: require("./locales/en/bot.json") },
-        pt: { bot: require("./locales/pt/bot.json") },
+        en: {
+            common: enCommon,
+            bot: enBot,
+            rps: enRps,
+        },
+        pt: {
+            common: ptCommon,
+            bot: ptBot,
+            rps: ptRps,
+        },
     },
-    defaultNS: "bot",
+    ns: ["common", "bot", "rps"],
+    defaultNS: "common",
 })
 
-export type TranslationKey = keyof typeof en
+export type TranslationKey =
+    | `bot:${keyof typeof enBot}`
+    | `common:${keyof typeof enCommon}`
+    | `rps:${keyof typeof enRps}`
 
 export function t(key: TranslationKey, options?: any): string {
     return i18n.t(key, options) as string
