@@ -2,5 +2,8 @@
     "title": "rock paper scissors",
     "rock": "rock",
     "paper": "paper",
-    "scissors": "scissors"
+    "scissors": "scissors",
+    "winMessage": "I've picked {{botMove}}, you win! Congratulations!",
+    "loseMessage": "I've picked {{botMove}}, you lose! Better luck next time!",
+    "drawMessage": "I've picked {{botMove}} too, it's a draw!"
 }

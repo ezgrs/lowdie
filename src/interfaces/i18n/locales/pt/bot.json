@@ -1,4 +1,7 @@
 {
     "menu.welcome": "Oi! Sou o Lowdie, mas você pode me chamar de Lodi. Tenho certeza que vamos nos divertir! Então, o que vamos jogar?",
-    "menu.invalid": "Não entendi, pode repetir?"
+    "menu.invalid": "Não entendi, pode repetir?",
+    "retry.prompt": "Quer tentar de novo?",
+    "input.select": "Selecione uma opção",
+    "input.text": "Digite"
 }

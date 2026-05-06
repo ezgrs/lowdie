@@ -2,5 +2,8 @@
     "title": "pedra papel tesoura",
     "rock": "pedra",
     "paper": "papel",
-    "scissors": "tesoura"
+    "scissors": "tesoura",
+    "winMessage": "Eu escolhi {{botMove}}, você venceu! Parabéns!",
+    "loseMessage": "Eu escolhi {{botMove}}, você perdeu! Mais sorte da próxima vez!",
+    "drawMessage": "Eu escolhi {{botMove}} também, é um empate!"
 }

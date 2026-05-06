@@ -1,6 +1,6 @@
-import { IO } from "../../../domain/services/io"
+import { Stream } from "../../../application/ports/Stream.js"
 
-export class ConsoleIO implements IO {
+export class ConsoleStream implements Stream {
     stdin: NodeJS.ReadStream
 
     constructor(stdin: NodeJS.ReadStream) {
