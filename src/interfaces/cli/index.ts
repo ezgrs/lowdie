@@ -1,4 +1,4 @@
-import { PseudoRandomizer } from "../../infrastructure/services/randomizer/PseudoRandomizer.js"
+import { PseudoRandomizer } from "../../infrastructure/services/randomizer/pseudo.js"
 import { InteractionChannel } from "../../application/ports/InteractionChannel.js"
 import { RockPaperScissorsGame } from "../../application/use-cases/modules/rock-paper-scissors/Module.js"
 import { isFinal, isNonFinal, State } from "../../domain/entities/State.js"
