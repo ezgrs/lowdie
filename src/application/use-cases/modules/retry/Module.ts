@@ -1,10 +1,6 @@
 import { Module } from "../../../ports/Module.js"
-import {
-    isFinal,
-    isNonFinal,
-    NonFinalState,
-    State,
-} from "../../../../domain/entities/State.js"
+import { NonFinalState, State } from "../../../../domain/entities/State.js"
+import { isFinal, isNonFinal } from "../../../../domain/services/State.js"
 import { RetryModuleEvent } from "./Event.js"
 import { RetryModuleState } from "./State.js"
 import { Action } from "../../../../domain/entities/Action.js"
