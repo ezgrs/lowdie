@@ -5,7 +5,7 @@ const config: Config = {
     testEnvironment: "node",
 
     extensionsToTreatAsEsm: [".ts"],
-
+    collectCoverageFrom: ["src/**/*.ts", "!src/**/*.test.ts"],
     transform: {
         "^.+\\.ts$": [
             "ts-jest",
