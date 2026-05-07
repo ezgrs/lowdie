@@ -18,7 +18,7 @@
     "type": "module",
     "main": "index.js",
     "scripts": {
-        "test": "jest",
+        "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js",
         "format": "prettier --write src",
         "cli": "npx tsx src/interfaces/cli/index.ts"
     },
