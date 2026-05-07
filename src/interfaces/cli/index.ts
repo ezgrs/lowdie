@@ -1,7 +1,6 @@
 import { PseudoRandomizer } from "../../infrastructure/services/randomizer/PseudoRandomizer.js"
-import { Stream } from "../../application/ports/Stream.js"
+import { InteractionChannel } from "../../application/ports/InteractionChannel.js"
 import { RockPaperScissorsGame } from "../../application/use-cases/modules/rock-paper-scissors/Module.js"
-import { input, select } from "@inquirer/prompts"
 import { isFinal, isNonFinal, State } from "../../domain/entities/State.js"
 import { t } from "../i18n/index.js"
 import { Module } from "../../application/ports/Module.js"
@@ -12,7 +11,7 @@ import { RockPaperScissorsGameEvent } from "../../application/use-cases/modules/
 import { RetryModuleEvent } from "../../application/use-cases/modules/retry/Event.js"
 import { RetryModuleState } from "../../application/use-cases/modules/retry/State.js"
 import { evaluateGame } from "../../domain/entities/RockPaperScissors.js"
-import { ConsoleStream } from "../../infrastructure/services/stream/ConsoleStream.js"
+import { ConsoleInteractionChannel } from "../../infrastructure/services/interaction-channel/console.js"
 import { BotModule } from "../../application/use-cases/modules/bot/Module.js"
 import { BotState } from "../../application/use-cases/modules/bot/State.js"
 import { BotEvent } from "../../application/use-cases/modules/bot/Event.js"
@@ -30,35 +29,35 @@ type ModuleSpec<S extends State, E> = {
 type LeafModuleSpec<S extends State, E> = ModuleSpec<S, E> & { title: string }
 
 async function executeAction<E>(
+    channel: InteractionChannel,
     action: Action<E>,
     renderEvent: (event: E) => string,
 ): Promise<E> {
     switch (action.type) {
         case "select":
-            const choices = action.choices.map((event) => ({
-                value: event,
-                name: renderEvent(event),
-            }))
-            return await select({
-                message: t("bot:input.select"),
-                choices: choices,
-            })
+            return await channel.askChoices(
+                t("bot:input.select"),
+                action.choices.map((event) => ({
+                    value: event,
+                    label: renderEvent(event),
+                })),
+            )
         case "input":
-            return await input({
-                message: t("bot:input.text"),
-            }).then(action.parser)
+            return await channel
+                .askText(t("bot:input.text"))
+                .then(action.parser)
     }
 }
 
 async function executeModule<S extends State, E>(
     spec: ModuleSpec<S, E>,
-    stream: Stream,
+    channel: InteractionChannel,
 ) {
     let state: S = spec.module.getInitialState()
     while (true) {
         const messages = spec.renderer.onState(state)
         for (const message of messages) {
-            await stream.output(message)
+            await channel.send(message)
         }
 
         if (isFinal(state)) {
@@ -68,7 +67,7 @@ async function executeModule<S extends State, E>(
             const action = spec.module.getAction(state)
             let event: E
             try {
-                event = await executeAction(action, (e) =>
+                event = await executeAction(channel, action, (e) =>
                     spec.renderer.onEvent(state, e),
                 )
             } catch (ExitPromptError) {
@@ -158,7 +157,7 @@ function createRetrySpec<S extends State, E>(
 
 async function main() {
     const randomizer = new PseudoRandomizer()
-    const stream = new ConsoleStream(process.stdin)
+    const channel = new ConsoleInteractionChannel()
     const rpsSpec: LeafModuleSpec<
         RockPaperScissorsGameState,
         RockPaperScissorsGameEvent
@@ -191,7 +190,7 @@ async function main() {
             },
         },
     }
-    await executeModule(createBotSpec([rpsSpec]), stream)
+    await executeModule(createBotSpec([rpsSpec]), channel)
 }
 
 main()
