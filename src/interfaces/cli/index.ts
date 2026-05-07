@@ -158,7 +158,7 @@ function createRetrySpec<S extends State, E>(
 
 async function main() {
     const randomizer = new PseudoRandomizer()
-    const channel = new ConsoleInteractionChannel()
+    const channel = new ConsoleInteractionChannel(process.stdin, process.stdout)
     const rpsSpec: LeafModuleSpec<
         RockPaperScissorsGameState,
         RockPaperScissorsGameEvent
