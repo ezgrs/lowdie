@@ -22,7 +22,7 @@ afterEach(() => {
 
 describe("getInitialState", () => {
     test.each(["rock", "paper", "scissors"])(
-        "should return waitingForUser state with bot move when randomizer chooses %s",
+        "should return waitingForUser state when bot chooses %s",
         (chosenMove) => {
             chooseMock.mockReturnValueOnce(chosenMove)
             const result = game.getInitialState()
@@ -41,55 +41,65 @@ describe("getInitialState", () => {
 })
 
 describe("applyEvent", () => {
-    test("should transition to done state when user chooses a move", () => {
-        const state = {
-            type: "waitingForUser",
-            botMove: "scissors",
-        } as const
+    describe.each(["rock", "paper", "scissors"])(
+        "when bot chooses %s",
+        (botMove) => {
+            test.each(["rock", "paper", "scissors"])(
+                "should transition to done state when user chooses %s",
+                (userMove) => {
+                    const state = {
+                        type: "waitingForUser",
+                        botMove: botMove as Move,
+                    } as const
 
-        const event = {
-            type: "userChose",
-            move: "rock",
-        } as const
+                    const event = {
+                        type: "userChose",
+                        move: userMove as Move,
+                    } as const
 
-        const result = game.applyEvent(state, event)
+                    const result = game.applyEvent(state, event)
 
-        expect(result).toEqual({
-            type: "done",
-            botMove: "scissors",
-            userMove: "rock",
-        })
-    })
+                    expect(result).toEqual({
+                        type: "done",
+                        botMove: botMove,
+                        userMove: userMove,
+                    })
+                },
+            )
+        },
+    )
 })
 
 describe("getAction", () => {
-    test.each(["rock", "paper", "scissors"])(
-        "should return select action with all possible moves when in waitingForUser state and bot move is %s",
-        (botMove) => {
-            const state = {
-                type: "waitingForUser",
-                botMove: botMove as Move,
-            } as const
+    describe("when in waitingForUser state", () => {
+        test.each(["rock", "paper", "scissors"])(
+            "should return select action with all possible moves when bot chooses %s",
+            (botMove) => {
+                const state = {
+                    type: "waitingForUser",
+                    botMove: botMove as Move,
+                } as const
 
-            const result = game.getAction(state)
+                const result = game.getAction(state)
 
-            expect(result).toEqual({
-                type: "select",
-                choices: [
-                    {
-                        type: "userChose",
-                        move: "rock",
-                    },
-                    {
-                        type: "userChose",
-                        move: "paper",
-                    },
-                    {
-                        type: "userChose",
-                        move: "scissors",
-                    },
-                ],
-            })
-        },
-    )
+                expect(result).toEqual({
+                    type: "select",
+                    choices: [
+                        {
+                            type: "userChose",
+                            move: "rock",
+                        },
+                        {
+                            type: "userChose",
+                            move: "paper",
+                        },
+                        {
+                            type: "userChose",
+                            move: "scissors",
+                        },
+                    ],
+                })
+            },
+        )
+    })
 })
