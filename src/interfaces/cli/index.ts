@@ -10,7 +10,7 @@ import { RockPaperScissorsGameState } from "../../application/use-cases/modules/
 import { RockPaperScissorsGameEvent } from "../../application/use-cases/modules/rock-paper-scissors/Event.js"
 import { RetryModuleEvent } from "../../application/use-cases/modules/retry/Event.js"
 import { RetryModuleState } from "../../application/use-cases/modules/retry/State.js"
-import { evaluateGame } from "../../domain/entities/RockPaperScissors.js"
+import { evaluateGame } from "../../domain/services/RockPaperScissors.js"
 import { ConsoleInteractionChannel } from "../../infrastructure/services/interaction-channel/console.js"
 import { BotModule } from "../../application/use-cases/modules/bot/Module.js"
 import { BotState } from "../../application/use-cases/modules/bot/State.js"
