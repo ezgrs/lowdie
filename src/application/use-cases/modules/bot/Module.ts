@@ -1,9 +1,6 @@
 import { Module } from "../../../ports/Module.js"
-import {
-    isFinal,
-    isNonFinal,
-    NonFinalState,
-} from "../../../../domain/entities/State.js"
+import { NonFinalState } from "../../../../domain/entities/State.js"
+import { isFinal, isNonFinal } from "../../../../domain/services/State.js"
 import { BotEvent } from "./Event.js"
 import { BotState } from "./State.js"
 import { Action } from "../../../../domain/entities/Action.js"
