@@ -45,7 +45,7 @@ describe("send", () => {
     test("should reject when stream write fails", async () => {
         const failingOutputStream = new Writable({
             write(_chunk, _encoding, callback) {
-                 callback(new Error("write failed"))
+                callback(new Error("write failed"))
             },
         }).on("error", () => {})
 

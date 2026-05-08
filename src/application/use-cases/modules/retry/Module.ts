@@ -72,10 +72,14 @@ export class RetryModule<S extends State, E> implements Module<
                     case "input":
                         return {
                             type: "input",
-                            parser: (input: string) => ({
-                                type: "subEventEmitted",
-                                wrapped: action.parser(input),
-                            }),
+                            parser: (input: string) => {
+                                const wrapped = action.parser(input)
+                                if (wrapped == null) return null
+                                return {
+                                    type: "subEventEmitted",
+                                    wrapped: wrapped,
+                                }
+                            },
                         }
                 }
             case "waiting":

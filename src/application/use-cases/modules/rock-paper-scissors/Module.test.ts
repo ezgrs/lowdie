@@ -12,6 +12,7 @@ beforeEach(() => {
     game = new RockPaperScissorsGame({
         randomizer: {
             choose: chooseMock,
+            shuffle: (v) => [...v],
         },
     })
 })

@@ -5,5 +5,5 @@ export type Action<E> =
       }
     | {
           type: "input"
-          parser: (input: string) => E
+          parser: (input: string) => E | null
       }

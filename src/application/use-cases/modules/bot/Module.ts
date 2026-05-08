@@ -76,10 +76,14 @@ export class BotModule implements Module<BotState, BotEvent> {
                     case "input":
                         return {
                             type: "input",
-                            parser: (input) => ({
-                                type: "subEventEmitted",
-                                wrapped: action.parser(input),
-                            }),
+                            parser: (input) => {
+                                const wrapped = action.parser(input)
+                                if (wrapped == null) return null
+                                return {
+                                    type: "subEventEmitted",
+                                    wrapped: wrapped,
+                                }
+                            },
                         }
                 }
         }
