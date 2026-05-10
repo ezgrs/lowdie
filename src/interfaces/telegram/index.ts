@@ -9,9 +9,7 @@ async function main() {
 
     const randomizer = new PseudoRandomizer()
     const ticTacToeBoardPresenter = new TicTacToeAsciiBoardPresenter()
-    const telegraf = new Telegraf(
-        
-    )
+    const telegraf = new Telegraf()
     const bot = new TelegramBot({
         telegraf: telegraf,
         async onStart(channel) {
@@ -20,6 +18,7 @@ async function main() {
                 channel: channel,
                 ticTacToeBoardPresenter: ticTacToeBoardPresenter,
                 signal: abortController.signal,
+                sessionTtlMs: 600_000, // 10 minutes
             })
         },
     })

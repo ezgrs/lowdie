@@ -5,6 +5,7 @@ import {
     InteractionOptions,
 } from "../../../application/ports/InteractionChannel.js"
 import { message } from "telegraf/filters"
+import { SessionTimeoutError } from "../../../domain/entities/errors.js"
 
 type PendingInteractionBase<T> = {
     resolve: (value: T) => void
@@ -74,36 +75,87 @@ export class TelegramBot {
     }
 }
 
-function withAbort<T>(
-    signal: AbortSignal | undefined,
-    executor: (resolve: (v: T) => void, reject: (e?: any) => void) => void,
-): Promise<T> {
-    return new Promise((resolve, reject) => {
-        if (signal?.aborted ?? false) {
-            return reject(new Error("Aborted"))
+type Executor<T> = (
+    resolve: (v: T) => void,
+    reject: (e: unknown) => void,
+) => void
+
+function withTimeout<T>(timeoutMs: number, executor: Executor<T>): Executor<T> {
+    return (resolve, reject) => {
+        let settled = false
+
+        const timer = setTimeout(() => {
+            if (settled) return
+            settled = true
+            reject(new SessionTimeoutError())
+        }, timeoutMs)
+
+        const safeResolve = (value: T) => {
+            if (settled) return
+            settled = true
+            clearTimeout(timer)
+            resolve(value)
         }
 
-        function onAbort() {
+        const safeReject = (err?: unknown) => {
+            if (settled) return
+            settled = true
+            clearTimeout(timer)
+            reject(err)
+        }
+
+        try {
+            executor(safeResolve, safeReject)
+        } catch (err) {
+            safeReject(err)
+        }
+    }
+}
+
+function withAbortSignal<T>(
+    signal: AbortSignal,
+    executor: Executor<T>,
+): Executor<T> {
+    return (resolve, reject) => {
+        let settled = false
+
+        if (signal.aborted) {
+            return reject(new DOMException("Aborted", "AbortError"))
+        }
+
+        const cleanup = () => {
+            signal.removeEventListener("abort", onAbort)
+        }
+
+        const onAbort = () => {
+            if (settled) return
+            settled = true
             cleanup()
-            reject(new DOMException("Aborted"))
-        }
-        function cleanup() {
-            signal?.removeEventListener("abort", onAbort)
+            reject(new DOMException("Aborted", "AbortError"))
         }
 
-        signal?.addEventListener("abort", onAbort)
+        signal.addEventListener("abort", onAbort)
 
-        executor(
-            (value) => {
-                cleanup()
-                resolve(value)
-            },
-            (err) => {
-                cleanup()
-                reject(err)
-            },
-        )
-    })
+        const safeResolve = (value: T) => {
+            if (settled) return
+            settled = true
+            cleanup()
+            resolve(value)
+        }
+
+        const safeReject = (err?: unknown) => {
+            if (settled) return
+            settled = true
+            cleanup()
+            reject(err)
+        }
+
+        try {
+            executor(safeResolve, safeReject)
+        } catch (err) {
+            safeReject(err)
+        }
+    }
 }
 
 class TelegramInteractionChannel implements InteractionChannel {
@@ -155,13 +207,21 @@ class TelegramInteractionChannel implements InteractionChannel {
 
         await this.send(message)
 
-        return withAbort(options?.signal, (resolve, reject) => {
+        let executor: Executor<string>
+        executor = (resolve, reject) => {
             this.pending = {
                 type: "text",
                 resolve,
                 reject,
             }
-        })
+        }
+        if (options?.sessionTtlMs) {
+            executor = withTimeout(options.sessionTtlMs, executor)
+        }
+        if (options?.signal) {
+            executor = withAbortSignal(options.signal, executor)
+        }
+        return new Promise(executor)
     }
 
     async askChoices<T>(
@@ -187,14 +247,22 @@ class TelegramInteractionChannel implements InteractionChannel {
             Markup.inlineKeyboard(buttons),
         )
 
-        return withAbort(options?.signal, (resolve, reject) => {
+        let executor: Executor<T>
+        executor = (resolve, reject) => {
             this.pending = {
                 type: "choices",
                 resolve,
                 reject,
                 choices: choiceMap,
             }
-        })
+        }
+        if (options?.sessionTtlMs) {
+            executor = withTimeout(options.sessionTtlMs, executor)
+        }
+        if (options?.signal) {
+            executor = withAbortSignal(options.signal, executor)
+        }
+        return new Promise(executor)
     }
 
     private cleanup(): void {

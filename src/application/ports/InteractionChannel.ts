@@ -5,6 +5,7 @@ export type InteractionChoice<T> = {
 
 export type InteractionOptions = {
     signal?: AbortSignal | undefined
+    sessionTtlMs?: number | undefined
 }
 
 export interface InteractionChannel {

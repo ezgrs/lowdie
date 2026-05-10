@@ -9,6 +9,7 @@ async function main() {
         channel: new ConsoleInteractionChannel(process.stdin, process.stdout),
         ticTacToeBoardPresenter: new TicTacToeAsciiBoardPresenter(),
         signal: undefined,
+        sessionTtlMs: undefined,
     })
 }
 

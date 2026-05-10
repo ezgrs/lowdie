@@ -19,7 +19,10 @@ import { TicTacToeGameEvent } from "../../application/use-cases/modules/tic-tac-
 import { TicTacToeGame } from "../../application/use-cases/modules/tic-tac-toe/Module.js"
 import { Randomizer } from "../../application/ports/Randomizer.js"
 import { TicTacToeBoardPresenter } from "./TicTacToeBoardPresenter.js"
-import { UnexpectedModuleFlow } from "../../domain/entities/errors.js"
+import {
+    SessionTimeoutError,
+    UnexpectedModuleFlow,
+} from "../../domain/entities/errors.js"
 
 interface Renderer<S extends State, E> {
     onEvent: (state: S, event: E) => string
@@ -39,6 +42,7 @@ type ExecuteActionArgs<E> = {
     action: Action<E>
     renderEvent: (event: E) => string
     signal: AbortSignal | undefined
+    sessionTtlMs: number | undefined
 }
 
 async function executeAction<E>({
@@ -47,6 +51,7 @@ async function executeAction<E>({
     action,
     renderEvent,
     signal,
+    sessionTtlMs,
 }: ExecuteActionArgs<E>): Promise<E | null> {
     switch (action.type) {
         case "select":
@@ -56,22 +61,31 @@ async function executeAction<E>({
                     value: event,
                     label: renderEvent(event),
                 })),
-                { signal: signal },
+                { signal, sessionTtlMs },
             )
         case "input":
             return await channel
                 .askText(label ?? t("bot:input.select") + ":", {
-                    signal: signal,
+                    signal,
+                    sessionTtlMs,
                 })
                 .then(action.parser)
     }
 }
 
-async function executeModule<S extends State, E>(
-    spec: ModuleSpec<S, E>,
-    channel: InteractionChannel,
-    signal: AbortSignal | undefined,
-) {
+type ExecuteModuleArgs<S extends State, E> = {
+    spec: ModuleSpec<S, E>
+    channel: InteractionChannel
+    signal: AbortSignal | undefined
+    sessionTtlMs: number | undefined
+}
+
+async function executeModule<S extends State, E>({
+    spec,
+    channel,
+    signal,
+    sessionTtlMs,
+}: ExecuteModuleArgs<S, E>) {
     let state: S = spec.module.getInitialState()
     while (!(signal?.aborted ?? false)) {
         const messages = spec.renderer.onState(state)
@@ -90,12 +104,18 @@ async function executeModule<S extends State, E>(
                     channel,
                     action,
                     label: messages[messages.length - 1],
-                    signal: signal,
+                    signal,
+                    sessionTtlMs,
                     renderEvent(e) {
                         return spec.renderer.onEvent(state, e)
                     },
                 })
-            } catch (ExitPromptError) {
+            } catch (e: any) {
+                if (e instanceof SessionTimeoutError) {
+                    await channel.send(
+                        "Timed-out. Please start a new conversation with /start.",
+                    )
+                }
                 return
             }
             if (event == null) {
@@ -191,6 +211,7 @@ type Args = {
     channel: InteractionChannel
     ticTacToeBoardPresenter: TicTacToeBoardPresenter
     signal: AbortSignal | undefined
+    sessionTtlMs: number | undefined
 }
 
 export async function runBot({
@@ -198,6 +219,7 @@ export async function runBot({
     channel,
     ticTacToeBoardPresenter,
     signal,
+    sessionTtlMs,
 }: Args) {
     const rpsSpec: LeafModuleSpec<
         RockPaperScissorsGameState,
@@ -294,5 +316,10 @@ export async function runBot({
             },
         },
     }
-    await executeModule(createBotSpec([rpsSpec, tttSpec]), channel, signal)
+    await executeModule({
+        spec: createBotSpec([rpsSpec, tttSpec]),
+        channel,
+        signal,
+        sessionTtlMs,
+    })
 }
