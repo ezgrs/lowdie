@@ -4,6 +4,7 @@ import { isFinal, isNonFinal } from "../../../../domain/services/State.js"
 import { RetryModuleEvent } from "./Event.js"
 import { RetryModuleState } from "./State.js"
 import { Action } from "../../../../domain/entities/Action.js"
+import { UnexpectedModuleFlow } from "../../../../domain/entities/errors.js"
 
 export class RetryModule<S extends State, E> implements Module<
     RetryModuleState<S>,
@@ -33,24 +34,20 @@ export class RetryModule<S extends State, E> implements Module<
                         if (isFinal(newState)) {
                             return { type: "waiting", wrapped: newState }
                         }
-                        throw new Error()
-                    case "waiting":
-                        throw new Error()
                 }
+                throw new UnexpectedModuleFlow(event.type, state.type)
             case "userProceeded":
                 switch (state.type) {
-                    case "active":
-                        throw new Error()
                     case "waiting":
                         return this.getInitialState()
                 }
+                throw new UnexpectedModuleFlow(event.type, state.type)
             case "userCanceled":
                 switch (state.type) {
-                    case "active":
-                        throw new Error()
                     case "waiting":
                         return { type: "done", wrapped: state.wrapped }
                 }
+                throw new UnexpectedModuleFlow(event.type, state.type)
         }
     }
 

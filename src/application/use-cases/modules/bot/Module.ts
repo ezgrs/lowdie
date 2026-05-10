@@ -4,6 +4,7 @@ import { isFinal, isNonFinal } from "../../../../domain/services/State.js"
 import { BotEvent } from "./Event.js"
 import { BotState } from "./State.js"
 import { Action } from "../../../../domain/entities/Action.js"
+import { UnexpectedModuleFlow } from "../../../../domain/entities/errors.js"
 
 export class BotModule implements Module<BotState, BotEvent> {
     constructor(private modules: Module<any, any>[]) {}
@@ -17,7 +18,7 @@ export class BotModule implements Module<BotState, BotEvent> {
             case "subEventEmitted":
                 switch (state.type) {
                     case "waiting":
-                        throw new Error()
+                        throw new UnexpectedModuleFlow(event.type, state.type)
                     case "active":
                         const module = this.modules[state.index]!
                         const newState = module.applyEvent(
@@ -34,7 +35,7 @@ export class BotModule implements Module<BotState, BotEvent> {
                         if (isFinal(newState)) {
                             return { type: "waiting" }
                         }
-                        throw new Error()
+                        throw new UnexpectedModuleFlow(event.type, state.type)
                 }
             case "userSelected":
                 switch (state.type) {
@@ -46,7 +47,7 @@ export class BotModule implements Module<BotState, BotEvent> {
                                 this.modules[event.index]!.getInitialState(),
                         }
                     case "active":
-                        throw new Error()
+                        throw new UnexpectedModuleFlow(event.type, state.type)
                 }
         }
     }

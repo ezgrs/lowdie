@@ -1,4 +1,5 @@
 import { Action } from "../../../../domain/entities/Action.js"
+import { UnexpectedModuleFlow } from "../../../../domain/entities/errors.js"
 import { NonFinalState } from "../../../../domain/entities/State.js"
 import { TicTacToeBoard } from "../../../../domain/services/tic-tac-toe/board.js"
 import { strategyFromDifficulty } from "../../../../domain/services/tic-tac-toe/strategy.js"
@@ -43,7 +44,11 @@ export class TicTacToeGame implements Module<
                 switch (state.type) {
                     case "settingUp":
                         if (state.property != null) {
-                            throw new Error()
+                            throw new UnexpectedModuleFlow(
+                                event.type,
+                                state.type,
+                                `state.property=${state.property}`,
+                            )
                         }
                         return {
                             type: "settingUp",
@@ -51,14 +56,17 @@ export class TicTacToeGame implements Module<
                             playerSymbol: state.playerSymbol,
                             property: event.property,
                         }
-                    default:
-                        throw new Error()
                 }
+                throw new UnexpectedModuleFlow(event.type, state.type)
             case "userUpdatedProperty":
                 switch (state.type) {
                     case "settingUp":
                         if (state.property == null) {
-                            throw new Error()
+                            throw new UnexpectedModuleFlow(
+                                event.type,
+                                state.type,
+                                `state.property=null`,
+                            )
                         }
                         switch (event.property) {
                             case "difficulty":
@@ -76,14 +84,17 @@ export class TicTacToeGame implements Module<
                                     property: undefined,
                                 }
                         }
-                    default:
-                        throw new Error()
                 }
+                throw new UnexpectedModuleFlow(event.type, state.type)
             case "userCanceledPropertySetup":
                 switch (state.type) {
                     case "settingUp":
                         if (state.property == null) {
-                            throw new Error()
+                            throw new UnexpectedModuleFlow(
+                                event.type,
+                                state.type,
+                                `state.property=null`,
+                            )
                         }
                         return {
                             type: "settingUp",
@@ -91,9 +102,8 @@ export class TicTacToeGame implements Module<
                             playerSymbol: state.playerSymbol,
                             property: undefined,
                         }
-                    default:
-                        throw new Error()
                 }
+                throw new UnexpectedModuleFlow(event.type, state.type)
             case "userStartedGame":
                 switch (state.type) {
                     case "settingUp":
@@ -122,9 +132,8 @@ export class TicTacToeGame implements Module<
                             playerSymbol: state.playerSymbol,
                             strategy: strategy,
                         }
-                    default:
-                        throw new Error()
                 }
+                throw new UnexpectedModuleFlow(event.type, state.type)
             case "userMarkedSymbol":
                 switch (state.type) {
                     case "playing":
@@ -169,9 +178,8 @@ export class TicTacToeGame implements Module<
                             playerSymbol: state.playerSymbol,
                             strategy: state.strategy,
                         }
-                    default:
-                        throw new Error()
                 }
+                throw new UnexpectedModuleFlow(event.type, state.type)
         }
     }
 

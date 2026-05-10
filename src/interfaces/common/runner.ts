@@ -19,6 +19,7 @@ import { TicTacToeGameEvent } from "../../application/use-cases/modules/tic-tac-
 import { TicTacToeGame } from "../../application/use-cases/modules/tic-tac-toe/Module.js"
 import { Randomizer } from "../../application/ports/Randomizer.js"
 import { TicTacToeBoardPresenter } from "./TicTacToeBoardPresenter.js"
+import { UnexpectedModuleFlow } from "../../domain/entities/errors.js"
 
 interface Renderer<S extends State, E> {
     onEvent: (state: S, event: E) => string
@@ -127,7 +128,10 @@ function createBotSpec(
                                 )
                             case "waiting":
                             case "done":
-                                throw new Error()
+                                throw new UnexpectedModuleFlow(
+                                    event.type,
+                                    state.type,
+                                )
                         }
                 }
             },
