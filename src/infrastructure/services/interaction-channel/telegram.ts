@@ -9,7 +9,6 @@ import { message } from "telegraf/filters"
 type PendingInteractionBase<T> = {
     resolve: (value: T) => void
     reject: (err: Error) => void
-    timeout: NodeJS.Timeout | undefined
 }
 type PendingTextInteraction = PendingInteractionBase<string> & { type: "text" }
 type PendingChoicesInteraction<T> = PendingInteractionBase<T> & {
@@ -21,38 +20,90 @@ type PendingInteraction<T> =
     | PendingChoicesInteraction<T>
 
 type Args = {
-    bot: Telegraf<Context>
-    onStart: (channel: InteractionChannel) => void
+    telegraf: Telegraf<Context>
+    onStart: (channel: InteractionChannel) => Promise<void>
+}
+
+type Session = {
+    channel: TelegramInteractionChannel
+    runner: Promise<void>
 }
 
 export class TelegramBot {
-    private channels: Map<number, TelegramInteractionChannel> = new Map()
+    private telegraf: Telegraf<Context>
+    private sessions: Map<number, Session> = new Map()
 
     constructor(readonly args: Args) {
-        const bot = args.bot
-        bot.start((ctx) => {
+        this.telegraf = args.telegraf
+        this.telegraf.start((ctx) => {
             const chatId = ctx.chat.id
-            const channel = new TelegramInteractionChannel(bot.telegram, chatId)
-            this.channels.set(chatId, channel)
-            args.onStart(channel)
+            const channel = new TelegramInteractionChannel(
+                this.telegraf.telegram,
+                chatId,
+            )
+            this.sessions.set(chatId, {
+                channel: channel,
+                runner: args.onStart(channel),
+            })
         })
-        bot.on(message("text"), async (ctx) => {
-            const channel = this.channels.get(ctx.chat.id)
-            if (channel == null) return
-            channel.acceptTextResponse(ctx.message.text)
+        this.telegraf.on(message("text"), async (ctx) => {
+            const session = this.sessions.get(ctx.chat.id)
+            if (session == null) return
+            session.channel.acceptTextResponse(ctx.message.text)
         })
-        bot.on("callback_query", async (ctx) => {
-            const channel = this.channels.get(ctx.chat!.id)
-            if (channel == null) return
+        this.telegraf.on("callback_query", async (ctx) => {
+            const session = this.sessions.get(ctx.chat!.id)
+            if (session == null) return
 
             const data =
                 "data" in ctx.callbackQuery ? ctx.callbackQuery.data : undefined
 
             if (!data) return
-            if (!channel.acceptChoiceResponse(data)) return
+            if (!session.channel.acceptChoiceResponse(data)) return
             await ctx.answerCbQuery()
         })
     }
+
+    async dispose(reason: string | undefined) {
+        await Promise.allSettled(
+            Array.from(this.sessions.values()).map(async (session) => {
+                await session.runner
+            }),
+        )
+        this.telegraf.stop(reason)
+    }
+}
+
+function withAbort<T>(
+    signal: AbortSignal | undefined,
+    executor: (resolve: (v: T) => void, reject: (e?: any) => void) => void,
+): Promise<T> {
+    return new Promise((resolve, reject) => {
+        if (signal?.aborted ?? false) {
+            return reject(new Error("Aborted"))
+        }
+
+        function onAbort() {
+            cleanup()
+            reject(new DOMException("Aborted"))
+        }
+        function cleanup() {
+            signal?.removeEventListener("abort", onAbort)
+        }
+
+        signal?.addEventListener("abort", onAbort)
+
+        executor(
+            (value) => {
+                cleanup()
+                resolve(value)
+            },
+            (err) => {
+                cleanup()
+                reject(err)
+            },
+        )
+    })
 }
 
 class TelegramInteractionChannel implements InteractionChannel {
@@ -104,13 +155,11 @@ class TelegramInteractionChannel implements InteractionChannel {
 
         await this.send(message)
 
-        return new Promise<string>((resolve, reject) => {
-            const timeout = this.createTimeout(options, reject)
+        return withAbort(options?.signal, (resolve, reject) => {
             this.pending = {
                 type: "text",
                 resolve,
                 reject,
-                timeout,
             }
         })
     }
@@ -138,39 +187,17 @@ class TelegramInteractionChannel implements InteractionChannel {
             Markup.inlineKeyboard(buttons),
         )
 
-        return new Promise<T>((resolve, reject) => {
-            const timeout = this.createTimeout(options, reject)
-
+        return withAbort(options?.signal, (resolve, reject) => {
             this.pending = {
                 type: "choices",
                 resolve,
                 reject,
                 choices: choiceMap,
-                timeout,
             }
         })
     }
 
     private cleanup(): void {
-        if (this.pending?.timeout) {
-            clearTimeout(this.pending.timeout)
-        }
-
         this.pending = undefined
-    }
-
-    private createTimeout(
-        options: InteractionOptions | undefined,
-        reject: (err: Error) => void,
-    ): NodeJS.Timeout | undefined {
-        if (!options?.timeoutMs) {
-            return undefined
-        }
-
-        return setTimeout(() => {
-            reject(new Error("Interaction timed out"))
-
-            this.cleanup()
-        }, options.timeoutMs)
     }
 }

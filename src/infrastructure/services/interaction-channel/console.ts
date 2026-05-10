@@ -1,3 +1,4 @@
+import { Context } from "@inquirer/type"
 import { input, select } from "@inquirer/prompts"
 import {
     InteractionChannel,
@@ -23,20 +24,35 @@ export class ConsoleInteractionChannel implements InteractionChannel {
         })
     }
 
-    async askText(message: string, _?: InteractionOptions): Promise<string> {
+    async askText(
+        message: string,
+        options?: InteractionOptions,
+    ): Promise<string> {
+        const signal = options?.signal
+        const context: Context = { input: this.input, output: this.output }
+        if (signal != null) {
+            context.signal = signal
+        }
+
         return await input(
             {
                 message: message,
             },
-            { input: this.input, output: this.output },
+            context,
         )
     }
 
     async askChoices<T>(
         message: string,
         choices: InteractionChoice<T>[],
-        _?: InteractionOptions,
+        options?: InteractionOptions,
     ): Promise<T> {
+        const signal = options?.signal
+        const context: Context = { input: this.input, output: this.output }
+        if (signal != null) {
+            context.signal = signal
+        }
+
         return await select(
             {
                 message: message,
@@ -45,7 +61,7 @@ export class ConsoleInteractionChannel implements InteractionChannel {
                     name: choice.label,
                 })),
             },
-            { input: this.input, output: this.output },
+            context,
         )
     }
 }

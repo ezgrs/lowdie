@@ -5,23 +5,30 @@ import { PseudoRandomizer } from "../../infrastructure/services/randomizer/pseud
 import { TicTacToeAsciiBoardPresenter } from "../common/TicTacToeBoardPresenter.js"
 
 async function main() {
+    const abortController = new AbortController()
+
     const randomizer = new PseudoRandomizer()
     const ticTacToeBoardPresenter = new TicTacToeAsciiBoardPresenter()
     const telegraf = new Telegraf(
         
     )
-    new TelegramBot({
-        bot: telegraf,
-        onStart(channel) {
-            runBot({
+    const bot = new TelegramBot({
+        telegraf: telegraf,
+        async onStart(channel) {
+            await runBot({
                 randomizer: randomizer,
                 channel: channel,
                 ticTacToeBoardPresenter: ticTacToeBoardPresenter,
+                signal: abortController.signal,
             })
         },
     })
-    process.once("SIGINT", () => telegraf.stop("SIGINT"))
-    process.once("SIGTERM", () => telegraf.stop("SIGTERM"))
+    for (const reason of ["SIGINT", "SIGTERM"]) {
+        process.once(reason, async () => {
+            abortController.abort()
+            await bot.dispose(reason)
+        })
+    }
     await telegraf.launch()
 }
 

@@ -4,7 +4,7 @@ export type InteractionChoice<T> = {
 }
 
 export type InteractionOptions = {
-    timeoutMs?: number
+    signal?: AbortSignal | undefined
 }
 
 export interface InteractionChannel {

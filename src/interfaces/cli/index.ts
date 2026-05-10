@@ -8,6 +8,7 @@ async function main() {
         randomizer: new PseudoRandomizer(),
         channel: new ConsoleInteractionChannel(process.stdin, process.stdout),
         ticTacToeBoardPresenter: new TicTacToeAsciiBoardPresenter(),
+        signal: undefined,
     })
 }
 

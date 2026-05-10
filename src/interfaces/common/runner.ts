@@ -32,12 +32,21 @@ type ModuleSpec<S extends State, E> = {
 
 type LeafModuleSpec<S extends State, E> = ModuleSpec<S, E> & { title: string }
 
-async function executeAction<E>(
-    label: string | undefined,
-    channel: InteractionChannel,
-    action: Action<E>,
-    renderEvent: (event: E) => string,
-): Promise<E | null> {
+type ExecuteActionArgs<E> = {
+    label: string | undefined
+    channel: InteractionChannel
+    action: Action<E>
+    renderEvent: (event: E) => string
+    signal: AbortSignal | undefined
+}
+
+async function executeAction<E>({
+    label,
+    channel,
+    action,
+    renderEvent,
+    signal,
+}: ExecuteActionArgs<E>): Promise<E | null> {
     switch (action.type) {
         case "select":
             return await channel.askChoices(
@@ -46,10 +55,13 @@ async function executeAction<E>(
                     value: event,
                     label: renderEvent(event),
                 })),
+                { signal: signal },
             )
         case "input":
             return await channel
-                .askText(label ?? t("bot:input.select") + ":")
+                .askText(label ?? t("bot:input.select") + ":", {
+                    signal: signal,
+                })
                 .then(action.parser)
     }
 }
@@ -57,9 +69,10 @@ async function executeAction<E>(
 async function executeModule<S extends State, E>(
     spec: ModuleSpec<S, E>,
     channel: InteractionChannel,
+    signal: AbortSignal | undefined,
 ) {
     let state: S = spec.module.getInitialState()
-    while (true) {
+    while (!(signal?.aborted ?? false)) {
         const messages = spec.renderer.onState(state)
         for (const message of messages.slice(0, -1)) {
             await channel.send(message)
@@ -72,12 +85,15 @@ async function executeModule<S extends State, E>(
             const action = spec.module.getAction(state)
             let event: E | null
             try {
-                event = await executeAction(
-                    messages[messages.length - 1],
+                event = await executeAction({
                     channel,
                     action,
-                    (e) => spec.renderer.onEvent(state, e),
-                )
+                    label: messages[messages.length - 1],
+                    signal: signal,
+                    renderEvent(e) {
+                        return spec.renderer.onEvent(state, e)
+                    },
+                })
             } catch (ExitPromptError) {
                 return
             }
@@ -170,12 +186,14 @@ type Args = {
     randomizer: Randomizer
     channel: InteractionChannel
     ticTacToeBoardPresenter: TicTacToeBoardPresenter
+    signal: AbortSignal | undefined
 }
 
 export async function runBot({
     randomizer,
     channel,
     ticTacToeBoardPresenter,
+    signal,
 }: Args) {
     const rpsSpec: LeafModuleSpec<
         RockPaperScissorsGameState,
@@ -272,5 +290,5 @@ export async function runBot({
             },
         },
     }
-    await executeModule(createBotSpec([rpsSpec, tttSpec]), channel)
+    await executeModule(createBotSpec([rpsSpec, tttSpec]), channel, signal)
 }
