@@ -21,7 +21,7 @@ export function gameResultOf(
 
         const pivotSymbol = symbols[0] ?? null
         let filled = true
-        for (const symbol in symbols) {
+        for (const symbol of symbols) {
             if (symbol == null) {
                 ++emptyCount
             }
