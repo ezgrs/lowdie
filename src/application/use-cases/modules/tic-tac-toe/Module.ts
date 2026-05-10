@@ -248,11 +248,9 @@ export class TicTacToeGame implements Module<
                         if (!match) return null
 
                         const [, rowLetter, colNumber] = match
-                        if (rowLetter == null) return null
-                        if (colNumber == null) return null
                         return {
                             type: "userMarkedSymbol",
-                            row: rowLetter.charCodeAt(0) - "A".charCodeAt(0),
+                            row: rowLetter!.charCodeAt(0) - "A".charCodeAt(0),
                             col: Number(colNumber) - 1,
                         }
                     },
