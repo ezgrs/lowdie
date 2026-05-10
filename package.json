@@ -21,11 +21,13 @@
         "test": "node --disable-warning=ExperimentalWarning --experimental-vm-modules node_modules/jest/bin/jest.js",
         "test:coverage": "node --disable-warning=ExperimentalWarning --experimental-vm-modules node_modules/jest/bin/jest.js --coverage",
         "format": "prettier --write src",
-        "cli": "npx tsx src/interfaces/cli/index.ts"
+        "cli": "npx tsx src/interfaces/cli/index.ts",
+        "telegram": "npx tsx src/interfaces/telegram/index.ts"
     },
     "dependencies": {
         "@inquirer/prompts": "^8.4.2",
-        "i18next": "^26.0.8"
+        "i18next": "^26.0.8",
+        "telegraf": "^4.16.3"
     },
     "devDependencies": {
         "@types/jest": "^30.0.0",
