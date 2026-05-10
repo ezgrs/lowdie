@@ -17,3 +17,10 @@ export class SessionTimeoutError extends Error {
         this.name = "SessionTimeoutError"
     }
 }
+
+export class SessionReplacedError extends Error {
+    constructor() {
+        super("session has been replaced with another")
+        this.name = "SessionReplacedError"
+    }
+}

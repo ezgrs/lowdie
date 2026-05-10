@@ -5,7 +5,10 @@ import {
     InteractionOptions,
 } from "../../../application/ports/InteractionChannel.js"
 import { message } from "telegraf/filters"
-import { SessionTimeoutError } from "../../../domain/entities/errors.js"
+import {
+    SessionReplacedError,
+    SessionTimeoutError,
+} from "../../../domain/entities/errors.js"
 
 type PendingInteractionBase<T> = {
     resolve: (value: T) => void
@@ -38,6 +41,11 @@ export class TelegramBot {
         this.telegraf = args.telegraf
         this.telegraf.start((ctx) => {
             const chatId = ctx.chat.id
+            const session = this.sessions.get(chatId)
+            if (session != null) {
+                session.channel.disposeAsReplaced()
+                this.sessions.delete(chatId)
+            }
             const channel = new TelegramInteractionChannel(
                 this.telegraf.telegram,
                 chatId,
@@ -190,6 +198,14 @@ class TelegramInteractionChannel implements InteractionChannel {
             this.cleanup()
         }, 0)
         return true
+    }
+
+    disposeAsReplaced(): void {
+        const pending = this.pending
+        if (!pending) return
+
+        pending.reject(new SessionReplacedError())
+        this.cleanup()
     }
 
     async send(message: string): Promise<void> {
