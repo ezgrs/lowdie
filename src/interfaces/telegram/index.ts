@@ -3,13 +3,16 @@ import { TelegramBot } from "../../infrastructure/services/interaction-channel/t
 import { runBot } from "../common/runner.js"
 import { PseudoRandomizer } from "../../infrastructure/services/randomizer/pseudo.js"
 import { TicTacToeAsciiBoardPresenter } from "../common/TicTacToeBoardPresenter.js"
+import dotenv from "dotenv"
 
 async function main() {
+    dotenv.config()
+
     const abortController = new AbortController()
 
     const randomizer = new PseudoRandomizer()
     const ticTacToeBoardPresenter = new TicTacToeAsciiBoardPresenter()
-    const telegraf = new Telegraf()
+    const telegraf = new Telegraf(process.env["TELEGRAM_BOT_TOKEN"]!)
     const bot = new TelegramBot({
         telegraf: telegraf,
         async onStart(channel) {
