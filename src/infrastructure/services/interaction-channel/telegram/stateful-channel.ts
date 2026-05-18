@@ -1,14 +1,12 @@
-import { Context, Markup, Telegraf, Telegram } from "telegraf"
 import {
     InteractionChannel,
-    InteractionChoice,
     InteractionOptions,
-} from "../../../application/ports/InteractionChannel.js"
-import { message } from "telegraf/filters"
+    InteractionChoice,
+} from "../../../../application/ports/InteractionChannel.js"
 import {
-    SessionReplacedError,
     SessionTimeoutError,
-} from "../../../domain/entities/errors.js"
+    SessionReplacedError,
+} from "../../../../domain/entities/errors.js"
 
 type PendingInteractionBase<T> = {
     resolve: (value: T) => void
@@ -22,66 +20,6 @@ type PendingChoicesInteraction<T> = PendingInteractionBase<T> & {
 type PendingInteraction<T> =
     | PendingTextInteraction
     | PendingChoicesInteraction<T>
-
-type Args = {
-    telegraf: Telegraf<Context>
-    onStart: (channel: InteractionChannel) => Promise<void>
-}
-
-type Session = {
-    channel: TelegramInteractionChannel
-    runner: Promise<void>
-}
-
-export class TelegramBot {
-    private telegraf: Telegraf<Context>
-    private sessions: Map<number, Session> = new Map()
-
-    constructor(readonly args: Args) {
-        this.telegraf = args.telegraf
-        this.telegraf.start((ctx) => {
-            const chatId = ctx.chat.id
-            const session = this.sessions.get(chatId)
-            if (session != null) {
-                session.channel.disposeAsReplaced()
-                this.sessions.delete(chatId)
-            }
-            const channel = new TelegramInteractionChannel(
-                this.telegraf.telegram,
-                chatId,
-            )
-            this.sessions.set(chatId, {
-                channel: channel,
-                runner: args.onStart(channel),
-            })
-        })
-        this.telegraf.on(message("text"), async (ctx) => {
-            const session = this.sessions.get(ctx.chat.id)
-            if (session == null) return
-            session.channel.acceptTextResponse(ctx.message.text)
-        })
-        this.telegraf.on("callback_query", async (ctx) => {
-            const session = this.sessions.get(ctx.chat!.id)
-            if (session == null) return
-
-            const data =
-                "data" in ctx.callbackQuery ? ctx.callbackQuery.data : undefined
-
-            if (!data) return
-            if (!session.channel.acceptChoiceResponse(data)) return
-            await ctx.answerCbQuery()
-        })
-    }
-
-    async dispose(reason: string | undefined) {
-        await Promise.allSettled(
-            Array.from(this.sessions.values()).map(async (session) => {
-                await session.runner
-            }),
-        )
-        this.telegraf.stop(reason)
-    }
-}
 
 type Executor<T> = (
     resolve: (v: T) => void,
@@ -166,13 +104,10 @@ function withAbortSignal<T>(
     }
 }
 
-class TelegramInteractionChannel implements InteractionChannel {
+export class StatefulTelegramInteractionChannel implements InteractionChannel {
     private pending: PendingInteraction<any> | undefined
 
-    constructor(
-        private readonly telegram: Telegram,
-        private readonly chatId: number,
-    ) {}
+    constructor(private readonly channel: InteractionChannel) {}
 
     acceptTextResponse(value: string): boolean {
         const pending = this.pending
@@ -209,8 +144,7 @@ class TelegramInteractionChannel implements InteractionChannel {
     }
 
     async send(message: string): Promise<void> {
-        if (message.length == 0) return
-        await this.telegram.sendMessage(this.chatId, message)
+        return await this.channel.send(message)
     }
 
     async askText(
@@ -221,7 +155,7 @@ class TelegramInteractionChannel implements InteractionChannel {
             throw new Error("Another interaction is already pending")
         }
 
-        await this.send(message)
+        await this.channel.askText(message)
 
         let executor: Executor<string>
         executor = (resolve, reject) => {
@@ -249,19 +183,17 @@ class TelegramInteractionChannel implements InteractionChannel {
             throw new Error("Another interaction is already pending")
         }
 
-        const choiceMap = new Map<string, T>()
+        if (options == null) {
+            await this.channel.askChoices(message, choices)
+        } else {
+            await this.channel.askChoices(message, choices, options)
+        }
 
-        const buttons = choices.map((choice, index) => {
+        const choiceMap = new Map<string, T>()
+        choices.forEach((choice, index) => {
             const key = `choice_${index}`
             choiceMap.set(key, choice.value)
-            return [Markup.button.callback(choice.label, key)]
         })
-
-        await this.telegram.sendMessage(
-            this.chatId,
-            message,
-            Markup.inlineKeyboard(buttons),
-        )
 
         let executor: Executor<T>
         executor = (resolve, reject) => {
