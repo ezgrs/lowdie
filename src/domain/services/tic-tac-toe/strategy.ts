@@ -12,16 +12,13 @@ export function strategyFromDifficulty(
     randomizer: Randomizer,
 ) {
     let strategy: TicTacToeStrategy = new EasyTicTacToeStrategy()
-    if (difficulty === "normal") {
-        strategy = new NormalTicTacToeStrategy(strategy)
-    }
-    if (difficulty === "hard") {
-        strategy = new HardTicTacToeStrategy({
-            randomizer: randomizer,
-            strategy: strategy,
-        })
-    }
-    return strategy
+    if (difficulty === "easy") return strategy
+    strategy = new NormalTicTacToeStrategy(strategy)
+    if (difficulty === "normal") return strategy
+    return new HardTicTacToeStrategy({
+        randomizer: randomizer,
+        strategy: strategy,
+    })
 }
 
 export interface TicTacToeStrategy {
