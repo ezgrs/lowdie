@@ -29,7 +29,7 @@ interface Renderer<S extends State, E> {
     onState: (state: S) => string[]
 }
 
-type ModuleSpec<S extends State, E> = {
+export type ModuleSpec<S extends State, E> = {
     module: Module<S, E>
     renderer: Renderer<S, E>
 }
@@ -45,7 +45,7 @@ type ExecuteActionArgs<E> = {
     sessionTtlMs: number | undefined
 }
 
-async function executeAction<E>({
+export async function executeAction<E>({
     label,
     channel,
     action,
@@ -80,7 +80,7 @@ type ExecuteModuleArgs<S extends State, E> = {
     sessionTtlMs: number | undefined
 }
 
-async function executeModule<S extends State, E>({
+export async function runModuleLoop<S extends State, E>({
     spec,
     channel,
     signal,
@@ -206,21 +206,10 @@ function createRetrySpec<S extends State, E>(
     }
 }
 
-type Args = {
-    randomizer: Randomizer
-    channel: InteractionChannel
-    ticTacToeBoardPresenter: TicTacToeBoardPresenter
-    signal: AbortSignal | undefined
-    sessionTtlMs: number | undefined
-}
-
-export async function runBot({
-    randomizer,
-    channel,
-    ticTacToeBoardPresenter,
-    signal,
-    sessionTtlMs,
-}: Args) {
+export function botSpecOf(
+    randomizer: Randomizer,
+    ticTacToeBoardPresenter: TicTacToeBoardPresenter,
+): ModuleSpec<BotState, BotEvent> {
     const rpsSpec: LeafModuleSpec<
         RockPaperScissorsGameState,
         RockPaperScissorsGameEvent
@@ -316,10 +305,5 @@ export async function runBot({
             },
         },
     }
-    await executeModule({
-        spec: createBotSpec([rpsSpec, tttSpec]),
-        channel,
-        signal,
-        sessionTtlMs,
-    })
+    return createBotSpec([rpsSpec, tttSpec])
 }
