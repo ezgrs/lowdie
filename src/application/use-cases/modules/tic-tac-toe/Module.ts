@@ -3,10 +3,7 @@ import { UnexpectedModuleFlow } from "@/domain/entities/errors.js"
 import { NonFinalState } from "@/domain/entities/State.js"
 import { TicTacToeBoard } from "@/domain/services/tic-tac-toe/board.js"
 import { strategyFromDifficulty } from "@/domain/services/tic-tac-toe/strategy.js"
-import {
-    oppositeSymbolOf,
-    gameResultOf,
-} from "@/domain/services/TicTacToe.js"
+import { oppositeSymbolOf, gameResultOf } from "@/domain/services/TicTacToe.js"
 import { Module } from "@/application/ports/Module.js"
 import { Randomizer } from "@/application/ports/Randomizer.js"
 import { TicTacToeGameEvent } from "./Event.js"

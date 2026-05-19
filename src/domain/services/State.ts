@@ -1,8 +1,4 @@
-import {
-    FinalState,
-    NonFinalState,
-    State,
-} from "@/domain/entities/State.js"
+import { FinalState, NonFinalState, State } from "@/domain/entities/State.js"
 
 export function isFinal<S extends State>(state: S): state is FinalState<S> {
     return state.type === "done"
