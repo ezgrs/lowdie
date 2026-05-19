@@ -1,12 +1,12 @@
-import { Markup, Telegram } from "telegraf"
 import {
     InteractionChannel,
     InteractionChoice,
     InteractionOptions,
 } from "@/src/application/ports/InteractionChannel.js"
 import SuperJSON from "superjson"
+import { Markup, Telegram } from "telegraf"
 
-export class StatelessTelegramInteractionChannel implements InteractionChannel {
+export class TelegramInteractionChannel implements InteractionChannel {
     constructor(
         private readonly telegram: Telegram,
         private readonly chatId: number,

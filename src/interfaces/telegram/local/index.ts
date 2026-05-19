@@ -1,32 +1,45 @@
 import { PseudoRandomizer } from "@/src/infrastructure/services/randomizer/pseudo.js"
 import dotenv from "dotenv"
-import { StatefulTelegramBot } from "@/src/infrastructure/services/interaction-channel/telegram/stateful-bot.js"
 import { runModuleLoop, botSpecOf } from "@/src/interfaces/common/runner.js"
 import { TicTacToeAsciiBoardPresenter } from "@/src/interfaces/common/TicTacToeBoardPresenter.js"
 import { telegrafOf } from "@/src/interfaces/telegram/telegraf.js"
+import { TelegramInteractionChannel } from "@/src/infrastructure/services/interaction-channel/telegram.js"
+import { MemoryBasedAgent } from "@/src/infrastructure/services/agent/memory.js"
+import { InteractionChannelBasedAgent } from "@/src/infrastructure/services/agent/interaction-channel.js"
 
 async function main() {
     dotenv.config()
 
     const abortController = new AbortController()
 
-    const bot = new StatefulTelegramBot(async (channel) => {
-        await runModuleLoop({
-            spec: botSpecOf(
-                new PseudoRandomizer(),
-                new TicTacToeAsciiBoardPresenter(),
-            ),
-            channel: channel,
-            signal: abortController.signal,
-            sessionTtlMs: 600_000, // 10 minutes
-        })
+    const [telegraf, bot] = telegrafOf({
+        token: process.env["TELEGRAM_BOT_TOKEN"]!,
+        createAgent: (telegram) =>
+            new MemoryBasedAgent({
+                onAgent: (chatId) =>
+                    new InteractionChannelBasedAgent({
+                        channel: new TelegramInteractionChannel(
+                            telegram,
+                            chatId,
+                        ),
+                        run: async (channel) => {
+                            await runModuleLoop({
+                                spec: botSpecOf(
+                                    new PseudoRandomizer(),
+                                    new TicTacToeAsciiBoardPresenter(),
+                                ),
+                                channel: channel,
+                                signal: abortController.signal,
+                                sessionTtlMs: 600_000, // 10 minutes
+                            })
+                        },
+                    }),
+            }),
     })
-
-    const telegraf = telegrafOf(process.env["TELEGRAM_BOT_TOKEN"]!, bot)
     for (const reason of ["SIGINT", "SIGTERM"]) {
         process.once(reason, async () => {
             abortController.abort()
-            await bot.disposed()
+            await bot.disposed(reason)
             telegraf.stop(reason)
         })
     }

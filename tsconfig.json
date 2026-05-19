@@ -7,6 +7,9 @@
 
     "rootDir": "src",
     "outDir": "dist",
+    "paths": {
+      "@/*": ["./*"]
+    },
 
     "sourceMap": true,
     "declaration": true,
@@ -32,9 +35,6 @@
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force",
     "skipLibCheck": true,
-    "paths": {
-      "@/*": ["./*"]
-    }
   },
   "include": ["src/**/*"],
   "exclude": ["jest.config.ts"]

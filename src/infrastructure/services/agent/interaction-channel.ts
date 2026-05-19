@@ -1,3 +1,4 @@
+import { Agent } from "@/src/application/ports/Agent.js"
 import {
     InteractionChannel,
     InteractionOptions,
@@ -104,38 +105,50 @@ function withAbortSignal<T>(
     }
 }
 
-export class StatefulTelegramInteractionChannel implements InteractionChannel {
+type Args = {
+    channel: InteractionChannel
+    run: (channel: InteractionChannel) => Promise<void>
+}
+
+export class InteractionChannelBasedAgent implements InteractionChannel, Agent {
     private pending: PendingInteraction<any> | undefined
+    private readonly channel: InteractionChannel
+    private readonly run: (channel: InteractionChannel) => Promise<void>
 
-    constructor(private readonly channel: InteractionChannel) {}
+    constructor(args: Args) {
+        this.channel = args.channel
+        this.run = args.run
+    }
 
-    acceptTextResponse(value: string): boolean {
+    async started(_: number): Promise<void> {
+        await this.run(this.channel)
+    }
+
+    async texted(_: number, text: string): Promise<void> {
         const pending = this.pending
-        if (!pending) return false
-        if (pending.type !== "text") return false
+        if (!pending) return
+        if (pending.type !== "text") return
+        setTimeout(() => {
+            pending.resolve(text)
+            this.cleanup()
+        }, 0)
+    }
+
+    async answered(_: number, data: string): Promise<void> {
+        const pending = this.pending
+        if (!pending) return
+        if (pending.type !== "choices") return
+
+        const value = pending.choices.get(data)
+        if (value == null) return
+
         setTimeout(() => {
             pending.resolve(value)
             this.cleanup()
         }, 0)
-        return true
     }
 
-    acceptChoiceResponse(key: string): boolean {
-        const pending = this.pending
-        if (!pending) return false
-        if (pending.type !== "choices") return false
-
-        const value = pending.choices.get(key)
-        if (value == null) return false
-
-        setTimeout(() => {
-            pending.resolve(value)
-            this.cleanup()
-        }, 0)
-        return true
-    }
-
-    disposeAsReplaced(): void {
+    async disposed(_: string): Promise<void> {
         const pending = this.pending
         if (!pending) return
 

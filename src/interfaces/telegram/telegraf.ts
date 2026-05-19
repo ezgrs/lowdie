@@ -1,21 +1,27 @@
-import { Context, Telegraf } from "telegraf"
-import { TelegramBot } from "@/src/infrastructure/services/interaction-channel/telegram/bot.js"
+import { Agent } from "@/src/application/ports/Agent.js"
+import { Context, Telegraf, Telegram } from "telegraf"
 import { message } from "telegraf/filters"
 
-export function telegrafOf(token: string, bot: TelegramBot): Telegraf<Context> {
-    const telegraf = new Telegraf(token)
+type Args = {
+    token: string
+    createAgent: (telegram: Telegram) => Agent
+}
+
+export function telegrafOf(args: Args): [Telegraf<Context>, Agent] {
+    const telegraf = new Telegraf(args.token)
+    const agent = args.createAgent(telegraf.telegram)
     telegraf.start(async (ctx) => {
-        await bot.started(telegraf, ctx.chat.id)
+        await agent.started(ctx.chat.id)
     })
     telegraf.on(message("text"), async (ctx) => {
-        await bot.texted(telegraf, ctx.chat.id, ctx.message.text)
+        await agent.texted(ctx.chat.id, ctx.message.text)
     })
     telegraf.on("callback_query", async (ctx) => {
         const data =
             "data" in ctx.callbackQuery ? ctx.callbackQuery.data : undefined
         if (data == null) return
-        await bot.answered(telegraf, ctx.chat!.id, data)
+        await agent.answered(ctx.chat!.id, data)
         await ctx.answerCbQuery()
     })
-    return telegraf
+    return [telegraf, agent]
 }
