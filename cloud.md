@@ -31,14 +31,7 @@ Login to the [AWS Management Console](https://aws.amazon.com/console), creating 
 
 ### IAM
 
-On the authorization model declared on the Overview section of this document, it's possible to model six policies
-that can be used in this project:
-
-- Four human policies described by the "Human permissions" item (`Lowdie-AdminPolicy`, `Lowdie-ManagerPolicy`, `Lowdie-DeployerPolicy`, `Lowdie-ViewerPolicy`)
-- One service policy described by the "Resources permissions" item (`Lowdie-LambdaExecutorPolicy`)
-- One tool policy described by the "Tools permissions" item (`Lowdie-CICDDeployerPolicy`)
-
-To create a policy:
+To create a IAM policy:
 
 1. Search for "IAM" on the search bar and click its respective item
 2. Go to the _Access Management > Policies_ section on the left sidebar
@@ -47,7 +40,7 @@ To create a policy:
 5. On step 1, select the "JSON" view on the "Policy editor" card and declare its contents, clicking **Next** afterwards
 6. On step 2, give the policy a name and click **Create policy**
 
-The minimal JSON permissions needed for this project for each policy declared above is:
+The minimal JSON permissions needed for this project for each policy is:
 
 - For the `Lowdie-LambdaExecutorPolicy` policy:
 
