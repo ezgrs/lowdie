@@ -2,7 +2,6 @@ import { BotState } from "@/application/use-cases/modules/bot/State.js"
 import { executeAction, ModuleSpec } from "@/interfaces/common/runner.js"
 import { BotEvent } from "@/application/use-cases/modules/bot/Event.js"
 import { isNonFinal } from "@/domain/services/State.js"
-import SuperJSON from "superjson"
 import { Event } from "@/domain/entities/Event.js"
 import { Agent } from "@/application/ports/Agent.js"
 import { InteractionChannel } from "@/application/ports/InteractionChannel.js"
@@ -93,16 +92,16 @@ export class DatabaseBasedAgent implements Agent {
             const action = this.spec.module.getAction(state)
             switch (action.type) {
                 case "select":
-                    let result: BotEvent<Event>
+                    let event: BotEvent<Event>
                     try {
-                        result = SuperJSON.deserialize(JSON.parse(data))
+                        event = JSON.parse(data)
                     } catch (e) {
                         console.log(`answered: failed to deserialize ${data}`)
                         return await this.started(chatId)
                     }
                     return await this.processState(
                         chatId,
-                        this.spec.module.applyEvent(state, result),
+                        this.spec.module.applyEvent(state, event),
                     )
                 default:
                     console.log("answered: expected a select action")

@@ -3,7 +3,6 @@ import {
     InteractionChoice,
     InteractionOptions,
 } from "@/application/ports/InteractionChannel.js"
-import SuperJSON from "superjson"
 import { Markup, Telegram } from "telegraf"
 
 export class TelegramInteractionChannel implements InteractionChannel {
@@ -28,8 +27,7 @@ export class TelegramInteractionChannel implements InteractionChannel {
         _?: InteractionOptions,
     ): Promise<T> {
         const buttons = choices.map((choice) => {
-            const result = SuperJSON.serialize(choice.value)
-            const data = JSON.stringify(result)
+            const data = JSON.stringify(choice.value)
             console.log(`sending BUTTON_DATA: ${data}`)
             return [Markup.button.callback(choice.label, data)]
         })
