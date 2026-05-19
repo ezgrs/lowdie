@@ -2,11 +2,11 @@ import {
     InteractionChannel,
     InteractionOptions,
     InteractionChoice,
-} from "../../../../application/ports/InteractionChannel.js"
+} from "@/src/application/ports/InteractionChannel.js"
 import {
     SessionTimeoutError,
     SessionReplacedError,
-} from "../../../../domain/entities/errors.js"
+} from "@/src/domain/entities/errors.js"
 
 type PendingInteractionBase<T> = {
     resolve: (value: T) => void

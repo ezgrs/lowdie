@@ -7,19 +7,19 @@ import {
 } from "@aws-sdk/lib-dynamodb"
 
 import { SuperJSON } from "superjson"
-import { BotStateDatabase } from "../../../infrastructure/services/interaction-channel/telegram/stateless-bot.js"
-import { BotState } from "../../../application/use-cases/modules/bot/State.js"
+import { BotStateDatabase } from "@/src/infrastructure/services/interaction-channel/telegram/stateless-bot.js"
+import { BotState } from "@/src/application/use-cases/modules/bot/State.js"
 import {
     BotEvent,
     isBotEvent,
     newBotEvent,
-} from "../../../application/use-cases/modules/bot/Event.js"
+} from "@/src/application/use-cases/modules/bot/Event.js"
 import {
     isRetryModuleEvent,
     newRetryModuleEvent,
     RetryModuleEvent,
-} from "../../../application/use-cases/modules/retry/Event.js"
-import { Event } from "../../../domain/entities/Event.js"
+} from "@/src/application/use-cases/modules/retry/Event.js"
+import { Event } from "@/src/domain/entities/Event.js"
 
 export class DynamoBotStateDatabase implements BotStateDatabase {
     private readonly client: DynamoDBDocumentClient

@@ -1,11 +1,11 @@
-import { Randomizer } from "../../../application/ports/Randomizer.js"
+import { Randomizer } from "@/src/application/ports/Randomizer.js"
 import {
     TicTacToeDifficulty,
     TicTacToeMatrix,
     TicTacToeMove,
     TicTacToeSymbol,
-} from "../../entities/TicTacToe.js"
-import { axesOf, oppositeSymbolOf } from "../TicTacToe.js"
+} from "@/src/domain/entities/TicTacToe.js"
+import { axesOf, oppositeSymbolOf } from "@/src/domain/services/TicTacToe.js"
 
 export function strategyFromDifficulty(
     difficulty: TicTacToeDifficulty,

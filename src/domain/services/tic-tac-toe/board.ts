@@ -1,10 +1,10 @@
-import { Randomizer } from "../../../application/ports/Randomizer.js"
+import { Randomizer } from "@/src/application/ports/Randomizer.js"
 import {
     TicTacToeMatrix,
     TicTacToeMove,
     TicTacToeSymbol,
-} from "../../entities/TicTacToe.js"
-import { randomEmptyPositionOf } from "../TicTacToe.js"
+} from "@/src/domain/entities/TicTacToe.js"
+import { randomEmptyPositionOf } from "@/src/domain/services/TicTacToe.js"
 
 type Args = {
     randomizer: Randomizer

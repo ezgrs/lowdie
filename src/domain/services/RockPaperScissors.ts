@@ -1,5 +1,5 @@
-import { GameResult } from "../entities/GameResult.js"
-import { Move } from "../entities/RockPaperScissors.js"
+import { GameResult } from "@/src/domain/entities/GameResult.js"
+import { Move } from "@/src/domain/entities/RockPaperScissors.js"
 
 export function evaluateGame(botMove: Move, userMove: Move): GameResult {
     if (botMove === userMove) {

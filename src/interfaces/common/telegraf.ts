@@ -1,5 +1,5 @@
 import { Context, Telegraf } from "telegraf"
-import { TelegramBot } from "../../infrastructure/services/interaction-channel/telegram/bot.js"
+import { TelegramBot } from "@/src/infrastructure/services/interaction-channel/telegram/bot.js"
 import { message } from "telegraf/filters"
 
 export function telegrafOf(token: string, bot: TelegramBot): Telegraf<Context> {

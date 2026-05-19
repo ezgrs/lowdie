@@ -1,5 +1,5 @@
-import { Action } from "../../domain/entities/Action.js"
-import { NonFinalState, State } from "../../domain/entities/State.js"
+import { Action } from "@/src/domain/entities/Action.js"
+import { NonFinalState, State } from "@/src/domain/entities/State.js"
 
 export interface Module<S extends State, E> {
     getInitialState(): NonFinalState<S>

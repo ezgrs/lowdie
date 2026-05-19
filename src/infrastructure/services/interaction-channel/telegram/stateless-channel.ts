@@ -3,7 +3,7 @@ import {
     InteractionChannel,
     InteractionChoice,
     InteractionOptions,
-} from "../../../../application/ports/InteractionChannel.js"
+} from "@/src/application/ports/InteractionChannel.js"
 import SuperJSON from "superjson"
 
 export class StatelessTelegramInteractionChannel implements InteractionChannel {

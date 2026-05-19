@@ -1,4 +1,4 @@
-import { TicTacToeMatrix } from "../../domain/entities/TicTacToe.js"
+import { TicTacToeMatrix } from "@/src/domain/entities/TicTacToe.js"
 
 export interface TicTacToeBoardPresenter {
     present(matrix: TicTacToeMatrix): string

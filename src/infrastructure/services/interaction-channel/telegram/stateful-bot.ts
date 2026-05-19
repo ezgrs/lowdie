@@ -1,5 +1,5 @@
 import { Context, Telegraf } from "telegraf"
-import { InteractionChannel } from "../../../../application/ports/InteractionChannel.js"
+import { InteractionChannel } from "@/src/application/ports/InteractionChannel.js"
 import { StatefulTelegramInteractionChannel } from "./stateful-channel.js"
 import { StatelessTelegramInteractionChannel } from "./stateless-channel.js"
 import { TelegramBot } from "./bot.js"

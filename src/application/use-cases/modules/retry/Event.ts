@@ -1,5 +1,5 @@
-import { Event as BaseEvent } from "../../../../domain/entities/Event.js"
-import { DiscriminatedUnion } from "../../../../common/utils.js"
+import { Event as BaseEvent } from "@/src/domain/entities/Event.js"
+import { DiscriminatedUnion } from "@/src/common/utils.js"
 
 declare const source: unique symbol
 

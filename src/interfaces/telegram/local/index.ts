@@ -1,9 +1,9 @@
-import { runModuleLoop, botSpecOf } from "../../common/runner.js"
-import { PseudoRandomizer } from "../../../infrastructure/services/randomizer/pseudo.js"
-import { TicTacToeAsciiBoardPresenter } from "../../common/TicTacToeBoardPresenter.js"
+import { PseudoRandomizer } from "@/src/infrastructure/services/randomizer/pseudo.js"
 import dotenv from "dotenv"
-import { StatefulTelegramBot } from "../../../infrastructure/services/interaction-channel/telegram/stateful-bot.js"
-import { telegrafOf } from "../../common/telegraf.js"
+import { StatefulTelegramBot } from "@/src/infrastructure/services/interaction-channel/telegram/stateful-bot.js"
+import { runModuleLoop, botSpecOf } from "@/src/interfaces/common/runner.js"
+import { TicTacToeAsciiBoardPresenter } from "@/src/interfaces/common/TicTacToeBoardPresenter.js"
+import { telegrafOf } from "@/src/interfaces/common/telegraf.js"
 
 async function main() {
     dotenv.config()

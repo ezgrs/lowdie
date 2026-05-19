@@ -1,16 +1,16 @@
-import { Action } from "../../../../domain/entities/Action.js"
+import { Action } from "@/src/domain/entities/Action.js"
 import {
     TicTacToeDifficulty,
     TicTacToeSymbol,
-} from "../../../../domain/entities/TicTacToe.js"
-import { TicTacToeBoard } from "../../../../domain/services/tic-tac-toe/board.js"
+} from "@/src/domain/entities/TicTacToe.js"
+import { TicTacToeBoard } from "@/src/domain/services/tic-tac-toe/board.js"
 import {
     EasyTicTacToeStrategy,
     HardTicTacToeStrategy,
     NormalTicTacToeStrategy,
     TicTacToeStrategy,
-} from "../../../../domain/services/tic-tac-toe/strategy.js"
-import { Randomizer } from "../../../ports/Randomizer.js"
+} from "@/src/domain/services/tic-tac-toe/strategy.js"
+import { Randomizer } from "@/src/application/ports/Randomizer.js"
 import { TicTacToeGameEvent } from "./Event.js"
 import { TicTacToeGame } from "./Module.js"
 import { describe, expect, test, jest } from "@jest/globals"

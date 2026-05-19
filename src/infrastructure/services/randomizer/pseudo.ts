@@ -1,4 +1,4 @@
-import { Randomizer } from "../../../application/ports/Randomizer.js"
+import { Randomizer } from "@/src/application/ports/Randomizer.js"
 
 export class PseudoRandomizer implements Randomizer {
     choose<T>(values: readonly T[]): T {

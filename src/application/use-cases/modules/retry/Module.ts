@@ -1,15 +1,15 @@
-import { Module } from "../../../ports/Module.js"
-import { NonFinalState, State } from "../../../../domain/entities/State.js"
-import { isFinal, isNonFinal } from "../../../../domain/services/State.js"
+import { Module } from "@/src/application/ports/Module.js"
+import { NonFinalState, State } from "@/src/domain/entities/State.js"
+import { isFinal, isNonFinal } from "@/src/domain/services/State.js"
+import { Action } from "@/src/domain/entities/Action.js"
+import { UnexpectedModuleFlow } from "@/src/domain/entities/errors.js"
+import { Event } from "@/src/domain/entities/Event.js"
+import { RetryModuleState } from "./State.js"
 import {
     isRetryModuleEvent,
     newRetryModuleEvent,
     RetryModuleEvent,
 } from "./Event.js"
-import { RetryModuleState } from "./State.js"
-import { Action } from "../../../../domain/entities/Action.js"
-import { UnexpectedModuleFlow } from "../../../../domain/entities/errors.js"
-import { Event } from "../../../../domain/entities/Event.js"
 
 export class RetryModule<S extends State, E extends Event> implements Module<
     RetryModuleState<S>,
