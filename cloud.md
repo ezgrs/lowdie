@@ -2,6 +2,25 @@
 
 This project is integrated with AWS and this tutorial explains from scratch how to deploy this project into a AWS Lambda.
 
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
+
+<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
+
+- [Cloud](#cloud)
+    * [Setting up](#setting-up)
+        + [IAM](#iam)
+        + [IAM Identity Center](#iam-identity-center)
+        + [CLI ](#cli)
+    * [Deploying](#deploying)
+        + [DynamoDB](#dynamodb)
+        + [AWS Lambda](#aws-lambda)
+        + [API Gateway](#api-gateway)
+        + [Telegram](#telegram)
+
+<!-- TOC end -->
+
+<!-- TOC end -->
+
 
 ## Setting up
 
@@ -213,11 +232,13 @@ On the dropdown list, select the `Lowdie-ManagerPermissionSet`.
 - For `Default client Region [None]:`, type the `PROJECT_REGION` again
 - For `CLI default output format (json if not specified) [None]:`, type Enter to accept the default
 
-Create the deployer profile by following the same steps as above, but this time passing `--profile deployer` and
+3. Create the deployer profile by following the same steps as above, but this time passing `--profile deployer` and
 selecting `Lowdie-DeployerPermissionSet` on the dropdown list.
 
 
-## DynamoDB
+## Deploying
+
+### DynamoDB
 
 1. Create the session table for this project:
 
@@ -235,7 +256,7 @@ aws dynamodb create-table
 This table's ARN will be `arn:aws:dynamodb:PROJECT_REGION:AWS_ACCOUNT_ID:table/lowdie-Session`.
 
 
-## AWS Lambda
+### AWS Lambda
 
 1. Compile this code:
 
@@ -272,7 +293,7 @@ aws lambda create-function
 This function's ARN will be `arn:aws:lambda:PROJECT_REGION:AWS_ACCOUNT_ID:function:Lowdie-TelegramWebhook`
 
 
-## API Gateway
+### API Gateway
 
 1. Create a new HTTP API:
 
@@ -330,10 +351,10 @@ aws lambda add-permission
     --action lambda:InvokeFunction
     --principal apigateway.amazonaws.com
     --source-arn arn:aws:execute-api:PROJECT_REGION:AWS_ACCOUNT_ID:API_ID/*/POST/webhook
-    --profile PROFILE_NAME
+    --profile manager
 ```
 
-## Telegram
+### Telegram
 
 1. Point Telegram to the deployed webhook (where `BOT_TOKEN` is your Telegram bot's token):
 
@@ -346,3 +367,4 @@ curl
 ```json
 {"ok":true,"result":true,"description":"Webhook was set"}
 ```
+
