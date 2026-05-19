@@ -8,17 +8,24 @@ import { RetryModule } from "../../application/use-cases/modules/retry/Module.js
 import { Action } from "../../domain/entities/Action.js"
 import { RockPaperScissorsGameState } from "../../application/use-cases/modules/rock-paper-scissors/State.js"
 import { RockPaperScissorsGameEvent } from "../../application/use-cases/modules/rock-paper-scissors/Event.js"
-import { RetryModuleEvent } from "../../application/use-cases/modules/retry/Event.js"
+import {
+    isRetryEvent,
+    RetryModuleEvent,
+} from "../../application/use-cases/modules/retry/Event.js"
 import { RetryModuleState } from "../../application/use-cases/modules/retry/State.js"
 import { evaluateGame } from "../../domain/services/RockPaperScissors.js"
 import { BotModule } from "../../application/use-cases/modules/bot/Module.js"
 import { BotState } from "../../application/use-cases/modules/bot/State.js"
-import { BotEvent } from "../../application/use-cases/modules/bot/Event.js"
+import {
+    BotEvent,
+    isBotEvent,
+} from "../../application/use-cases/modules/bot/Event.js"
 import { TicTacToeGameState } from "../../application/use-cases/modules/tic-tac-toe/State.js"
 import { TicTacToeGameEvent } from "../../application/use-cases/modules/tic-tac-toe/Event.js"
 import { TicTacToeGame } from "../../application/use-cases/modules/tic-tac-toe/Module.js"
 import { Randomizer } from "../../application/ports/Randomizer.js"
 import { TicTacToeBoardPresenter } from "./TicTacToeBoardPresenter.js"
+import { Event } from "../../domain/entities/Event.js"
 import {
     SessionTimeoutError,
     UnexpectedModuleFlow,
@@ -128,31 +135,27 @@ export async function runModuleLoop<S extends State, E>({
 
 function createBotSpec(
     specs: LeafModuleSpec<any, any>[],
-): ModuleSpec<BotState, BotEvent> {
+): ModuleSpec<BotState, BotEvent<Event>> {
     const specsWithRetry = specs.map(createRetrySpec)
     return {
         module: new BotModule(specsWithRetry.map((spec) => spec.module)),
         renderer: {
             onEvent: (state, event) => {
-                switch (event.type) {
-                    case "userSelected":
-                        return specs[event.index]!.title
-                    case "subEventEmitted":
-                        switch (state.type) {
-                            case "active":
-                                return specsWithRetry[
-                                    state.index
-                                ]!.renderer.onEvent(
-                                    state.wrapped,
-                                    event.wrapped,
-                                )
-                            case "waiting":
-                            case "done":
-                                throw new UnexpectedModuleFlow(
-                                    event.type,
-                                    state.type,
-                                )
-                        }
+                if (isBotEvent(event)) {
+                    switch (event.type) {
+                        case "userSelected":
+                            return specs[event.index]!.title
+                    }
+                }
+                switch (state.type) {
+                    case "active":
+                        return specsWithRetry[state.index]!.renderer.onEvent(
+                            state.wrapped,
+                            event,
+                        )
+                    case "waiting":
+                    case "done":
+                        throw new UnexpectedModuleFlow(event.type, state.type)
                 }
             },
             onState: (state) => {
@@ -171,24 +174,22 @@ function createBotSpec(
     }
 }
 
-function createRetrySpec<S extends State, E>(
+function createRetrySpec<S extends State, E extends Event>(
     spec: LeafModuleSpec<S, E>,
 ): ModuleSpec<RetryModuleState<S>, RetryModuleEvent<E>> {
     return {
         module: new RetryModule(spec.module),
         renderer: {
             onEvent: (state, event) => {
-                switch (event.type) {
-                    case "subEventEmitted":
-                        return spec.renderer.onEvent(
-                            state.wrapped,
-                            event.wrapped,
-                        )
-                    case "userProceeded":
-                        return t("common:yes")
-                    case "userCanceled":
-                        return t("common:no")
+                if (isRetryEvent(event)) {
+                    switch (event.type) {
+                        case "userProceeded":
+                            return t("common:yes")
+                        case "userCanceled":
+                            return t("common:no")
+                    }
                 }
+                return spec.renderer.onEvent(state.wrapped, event)
             },
             onState: (state) => {
                 const messages = [...spec.renderer.onState(state.wrapped)]
@@ -209,7 +210,7 @@ function createRetrySpec<S extends State, E>(
 export function botSpecOf(
     randomizer: Randomizer,
     ticTacToeBoardPresenter: TicTacToeBoardPresenter,
-): ModuleSpec<BotState, BotEvent> {
+): ModuleSpec<BotState, BotEvent<Event>> {
     const rpsSpec: LeafModuleSpec<
         RockPaperScissorsGameState,
         RockPaperScissorsGameEvent

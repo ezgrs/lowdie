@@ -9,7 +9,7 @@ import { BotEvent } from "../../../../application/use-cases/modules/bot/Event.js
 import { isNonFinal } from "../../../../domain/services/State.js"
 import SuperJSON from "superjson"
 import { StatelessTelegramInteractionChannel } from "./stateless-channel.js"
-
+import { Event } from "../../../../domain/entities/Event.js"
 export interface BotStateDatabase {
     set(chatId: number, state: BotState): Promise<void>
     get(chatId: number): Promise<BotState | undefined>
@@ -17,12 +17,12 @@ export interface BotStateDatabase {
 
 type Args = {
     database: BotStateDatabase
-    spec: ModuleSpec<BotState, BotEvent>
+    spec: ModuleSpec<BotState, BotEvent<Event>>
 }
 
 export class StatelessTelegramBot implements TelegramBot {
     private readonly database: BotStateDatabase
-    private readonly spec: ModuleSpec<BotState, BotEvent>
+    private readonly spec: ModuleSpec<BotState, BotEvent<Event>>
 
     constructor(args: Args) {
         this.database = args.database
@@ -113,7 +113,7 @@ export class StatelessTelegramBot implements TelegramBot {
             const action = this.spec.module.getAction(state)
             switch (action.type) {
                 case "select":
-                    let result: BotEvent
+                    let result: BotEvent<Event>
                     try {
                         result = SuperJSON.deserialize(JSON.parse(data))
                     } catch (e) {
