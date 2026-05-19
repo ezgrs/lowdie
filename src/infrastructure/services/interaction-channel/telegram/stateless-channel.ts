@@ -29,9 +29,9 @@ export class StatelessTelegramInteractionChannel implements InteractionChannel {
     ): Promise<T> {
         const buttons = choices.map((choice) => {
             const result = SuperJSON.serialize(choice.value)
-            return [
-                Markup.button.callback(choice.label, JSON.stringify(result)),
-            ]
+            const data = JSON.stringify(result)
+            console.log(`sending BUTTON_DATA: ${data}`)
+            return [Markup.button.callback(choice.label, data)]
         })
         await this.telegram.sendMessage(
             this.chatId,
