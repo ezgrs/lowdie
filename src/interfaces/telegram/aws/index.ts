@@ -1,6 +1,6 @@
 import { APIGatewayProxyHandlerV2 } from "aws-lambda"
 import { StatusCodes } from "http-status-codes"
-import { telegrafOf } from "@/src/interfaces/common/telegraf.js"
+import { telegrafOf } from "@/src/interfaces/telegram/telegraf.js"
 import { StatelessTelegramBot } from "@/src/infrastructure/services/interaction-channel/telegram/stateless-bot.js"
 import { botSpecOf } from "@/src/interfaces/common/runner.js"
 import { PseudoRandomizer } from "@/src/infrastructure/services/randomizer/pseudo.js"

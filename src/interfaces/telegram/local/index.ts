@@ -3,7 +3,7 @@ import dotenv from "dotenv"
 import { StatefulTelegramBot } from "@/src/infrastructure/services/interaction-channel/telegram/stateful-bot.js"
 import { runModuleLoop, botSpecOf } from "@/src/interfaces/common/runner.js"
 import { TicTacToeAsciiBoardPresenter } from "@/src/interfaces/common/TicTacToeBoardPresenter.js"
-import { telegrafOf } from "@/src/interfaces/common/telegraf.js"
+import { telegrafOf } from "@/src/interfaces/telegram/telegraf.js"
 
 async function main() {
     dotenv.config()
