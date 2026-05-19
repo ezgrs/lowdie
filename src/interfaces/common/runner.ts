@@ -9,7 +9,7 @@ import { Action } from "../../domain/entities/Action.js"
 import { RockPaperScissorsGameState } from "../../application/use-cases/modules/rock-paper-scissors/State.js"
 import { RockPaperScissorsGameEvent } from "../../application/use-cases/modules/rock-paper-scissors/Event.js"
 import {
-    isRetryEvent,
+    isRetryModuleEvent,
     RetryModuleEvent,
 } from "../../application/use-cases/modules/retry/Event.js"
 import { RetryModuleState } from "../../application/use-cases/modules/retry/State.js"
@@ -181,7 +181,7 @@ function createRetrySpec<S extends State, E extends Event>(
         module: new RetryModule(spec.module),
         renderer: {
             onEvent: (state, event) => {
-                if (isRetryEvent(event)) {
+                if (isRetryModuleEvent(event)) {
                     switch (event.type) {
                         case "userProceeded":
                             return t("common:yes")

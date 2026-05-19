@@ -1,7 +1,11 @@
 import { Module } from "../../../ports/Module.js"
 import { NonFinalState, State } from "../../../../domain/entities/State.js"
 import { isFinal, isNonFinal } from "../../../../domain/services/State.js"
-import { isRetryEvent, newRetryEvent, RetryModuleEvent } from "./Event.js"
+import {
+    isRetryModuleEvent,
+    newRetryModuleEvent,
+    RetryModuleEvent,
+} from "./Event.js"
 import { RetryModuleState } from "./State.js"
 import { Action } from "../../../../domain/entities/Action.js"
 import { UnexpectedModuleFlow } from "../../../../domain/entities/errors.js"
@@ -21,7 +25,7 @@ export class RetryModule<S extends State, E extends Event> implements Module<
         state: NonFinalState<RetryModuleState<NonFinalState<S>>>,
         event: RetryModuleEvent<E>,
     ): RetryModuleState<S> {
-        if (isRetryEvent(event)) {
+        if (isRetryModuleEvent(event)) {
             switch (event.type) {
                 case "userProceeded":
                     switch (state.type) {
@@ -57,8 +61,8 @@ export class RetryModule<S extends State, E extends Event> implements Module<
                 return {
                     type: "select",
                     choices: [
-                        newRetryEvent({ type: "userProceeded" }),
-                        newRetryEvent({ type: "userCanceled" }),
+                        newRetryModuleEvent({ type: "userProceeded" }),
+                        newRetryModuleEvent({ type: "userCanceled" }),
                     ],
                 }
         }

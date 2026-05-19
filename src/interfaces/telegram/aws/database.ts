@@ -9,12 +9,40 @@ import {
 import { SuperJSON } from "superjson"
 import { BotStateDatabase } from "../../../infrastructure/services/interaction-channel/telegram/stateless-bot.js"
 import { BotState } from "../../../application/use-cases/modules/bot/State.js"
+import {
+    BotEvent,
+    isBotEvent,
+    newBotEvent,
+} from "../../../application/use-cases/modules/bot/Event.js"
+import {
+    isRetryModuleEvent,
+    newRetryModuleEvent,
+    RetryModuleEvent,
+} from "../../../application/use-cases/modules/retry/Event.js"
+import { Event } from "../../../domain/entities/Event.js"
 
 export class DynamoBotStateDatabase implements BotStateDatabase {
     private readonly client: DynamoDBDocumentClient
     private readonly tableName: string = "Lowdie-Session"
 
     constructor(client: DynamoDBClient) {
+        SuperJSON.registerCustom<BotEvent<Event>, string>(
+            {
+                isApplicable: isBotEvent,
+                serialize: JSON.stringify,
+                deserialize: (v) => newBotEvent(JSON.parse(v)),
+            },
+            "BotEvent",
+        )
+        SuperJSON.registerCustom<RetryModuleEvent<Event>, string>(
+            {
+                isApplicable: isRetryModuleEvent,
+                serialize: JSON.stringify,
+                deserialize: (v) => newRetryModuleEvent(JSON.parse(v)),
+            },
+            "RetryModuleEvent",
+        )
+
         this.client = DynamoDBDocumentClient.from(client)
     }
 
