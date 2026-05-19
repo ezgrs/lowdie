@@ -1,7 +1,7 @@
-import { ConsoleInteractionChannel } from "@/src/infrastructure/services/interaction-channel/console.js"
-import { PseudoRandomizer } from "@/src/infrastructure/services/randomizer/pseudo.js"
-import { botSpecOf, runModuleLoop } from "@/src/interfaces/common/runner.js"
-import { TicTacToeAsciiBoardPresenter } from "@/src/interfaces/common/TicTacToeBoardPresenter.js"
+import { ConsoleInteractionChannel } from "@/infrastructure/services/interaction-channel/console.js"
+import { PseudoRandomizer } from "@/infrastructure/services/randomizer/pseudo.js"
+import { botSpecOf, runModuleLoop } from "@/interfaces/common/runner.js"
+import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoardPresenter.js"
 
 async function main() {
     await runModuleLoop({

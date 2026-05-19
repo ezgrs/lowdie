@@ -1,4 +1,4 @@
-import { Move } from "@/src/domain/entities/RockPaperScissors.js"
+import { Move } from "@/domain/entities/RockPaperScissors.js"
 import { RockPaperScissorsGame } from "./Module.js"
 import { describe, expect, test, jest } from "@jest/globals"
 

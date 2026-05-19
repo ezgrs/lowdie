@@ -7,19 +7,19 @@ import {
 } from "@aws-sdk/lib-dynamodb"
 
 import { SuperJSON } from "superjson"
-import { BotState } from "@/src/application/use-cases/modules/bot/State.js"
+import { BotState } from "@/application/use-cases/modules/bot/State.js"
 import {
     BotEvent,
     isBotEvent,
     newBotEvent,
-} from "@/src/application/use-cases/modules/bot/Event.js"
+} from "@/application/use-cases/modules/bot/Event.js"
 import {
     isRetryModuleEvent,
     newRetryModuleEvent,
     RetryModuleEvent,
-} from "@/src/application/use-cases/modules/retry/Event.js"
-import { Event } from "@/src/domain/entities/Event.js"
-import { BotStateDatabase } from "@/src/infrastructure/services/agent/database.js"
+} from "@/application/use-cases/modules/retry/Event.js"
+import { Event } from "@/domain/entities/Event.js"
+import { BotStateDatabase } from "@/infrastructure/services/agent/database.js"
 
 export class DynamoBotStateDatabase implements BotStateDatabase {
     private readonly client: DynamoDBDocumentClient

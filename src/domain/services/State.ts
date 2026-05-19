@@ -2,7 +2,7 @@ import {
     FinalState,
     NonFinalState,
     State,
-} from "@/src/domain/entities/State.js"
+} from "@/domain/entities/State.js"
 
 export function isFinal<S extends State>(state: S): state is FinalState<S> {
     return state.type === "done"

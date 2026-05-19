@@ -1,11 +1,11 @@
-import { BotState } from "@/src/application/use-cases/modules/bot/State.js"
-import { executeAction, ModuleSpec } from "@/src/interfaces/common/runner.js"
-import { BotEvent } from "@/src/application/use-cases/modules/bot/Event.js"
-import { isNonFinal } from "@/src/domain/services/State.js"
+import { BotState } from "@/application/use-cases/modules/bot/State.js"
+import { executeAction, ModuleSpec } from "@/interfaces/common/runner.js"
+import { BotEvent } from "@/application/use-cases/modules/bot/Event.js"
+import { isNonFinal } from "@/domain/services/State.js"
 import SuperJSON from "superjson"
-import { Event } from "@/src/domain/entities/Event.js"
-import { Agent } from "@/src/application/ports/Agent.js"
-import { InteractionChannel } from "@/src/application/ports/InteractionChannel.js"
+import { Event } from "@/domain/entities/Event.js"
+import { Agent } from "@/application/ports/Agent.js"
+import { InteractionChannel } from "@/application/ports/InteractionChannel.js"
 
 export interface BotStateDatabase {
     set(chatId: number, state: BotState): Promise<void>

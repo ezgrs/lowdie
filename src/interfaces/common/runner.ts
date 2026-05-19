@@ -1,35 +1,35 @@
-import { InteractionChannel } from "@/src/application/ports/InteractionChannel.js"
-import { RockPaperScissorsGame } from "@/src/application/use-cases/modules/rock-paper-scissors/Module.js"
-import { State } from "@/src/domain/entities/State.js"
-import { isFinal, isNonFinal } from "@/src/domain/services/State.js"
-import { t } from "@/src/interfaces/i18n/index.js"
-import { Module } from "@/src/application/ports/Module.js"
-import { RetryModule } from "@/src/application/use-cases/modules/retry/Module.js"
-import { Action } from "@/src/domain/entities/Action.js"
-import { RockPaperScissorsGameState } from "@/src/application/use-cases/modules/rock-paper-scissors/State.js"
-import { RockPaperScissorsGameEvent } from "@/src/application/use-cases/modules/rock-paper-scissors/Event.js"
+import { InteractionChannel } from "@/application/ports/InteractionChannel.js"
+import { RockPaperScissorsGame } from "@/application/use-cases/modules/rock-paper-scissors/Module.js"
+import { State } from "@/domain/entities/State.js"
+import { isFinal, isNonFinal } from "@/domain/services/State.js"
+import { t } from "@/interfaces/i18n/index.js"
+import { Module } from "@/application/ports/Module.js"
+import { RetryModule } from "@/application/use-cases/modules/retry/Module.js"
+import { Action } from "@/domain/entities/Action.js"
+import { RockPaperScissorsGameState } from "@/application/use-cases/modules/rock-paper-scissors/State.js"
+import { RockPaperScissorsGameEvent } from "@/application/use-cases/modules/rock-paper-scissors/Event.js"
 import {
     isRetryModuleEvent,
     RetryModuleEvent,
-} from "@/src/application/use-cases/modules/retry/Event.js"
-import { RetryModuleState } from "@/src/application/use-cases/modules/retry/State.js"
-import { evaluateGame } from "@/src/domain/services/RockPaperScissors.js"
-import { BotModule } from "@/src/application/use-cases/modules/bot/Module.js"
-import { BotState } from "@/src/application/use-cases/modules/bot/State.js"
+} from "@/application/use-cases/modules/retry/Event.js"
+import { RetryModuleState } from "@/application/use-cases/modules/retry/State.js"
+import { evaluateGame } from "@/domain/services/RockPaperScissors.js"
+import { BotModule } from "@/application/use-cases/modules/bot/Module.js"
+import { BotState } from "@/application/use-cases/modules/bot/State.js"
 import {
     BotEvent,
     isBotEvent,
-} from "@/src/application/use-cases/modules/bot/Event.js"
-import { TicTacToeGameState } from "@/src/application/use-cases/modules/tic-tac-toe/State.js"
-import { TicTacToeGameEvent } from "@/src/application/use-cases/modules/tic-tac-toe/Event.js"
-import { TicTacToeGame } from "@/src/application/use-cases/modules/tic-tac-toe/Module.js"
-import { Randomizer } from "@/src/application/ports/Randomizer.js"
+} from "@/application/use-cases/modules/bot/Event.js"
+import { TicTacToeGameState } from "@/application/use-cases/modules/tic-tac-toe/State.js"
+import { TicTacToeGameEvent } from "@/application/use-cases/modules/tic-tac-toe/Event.js"
+import { TicTacToeGame } from "@/application/use-cases/modules/tic-tac-toe/Module.js"
+import { Randomizer } from "@/application/ports/Randomizer.js"
 import { TicTacToeBoardPresenter } from "./TicTacToeBoardPresenter.js"
-import { Event } from "@/src/domain/entities/Event.js"
+import { Event } from "@/domain/entities/Event.js"
 import {
     SessionTimeoutError,
     UnexpectedModuleFlow,
-} from "@/src/domain/entities/errors.js"
+} from "@/domain/entities/errors.js"
 
 interface Renderer<S extends State, E> {
     onEvent: (state: S, event: E) => string

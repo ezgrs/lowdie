@@ -1,5 +1,5 @@
-import { DiscriminatedUnion } from "@/src/common/utils.js"
-import { Move } from "@/src/domain/entities/RockPaperScissors.js"
+import { DiscriminatedUnion } from "@/common/utils.js"
+import { Move } from "@/domain/entities/RockPaperScissors.js"
 
 export type RockPaperScissorsGameState = DiscriminatedUnion<{
     waitingForUser: {

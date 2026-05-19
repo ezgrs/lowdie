@@ -1,8 +1,8 @@
-import { Module } from "@/src/application/ports/Module.js"
-import { NonFinalState, State } from "@/src/domain/entities/State.js"
-import { isFinal, isNonFinal } from "@/src/domain/services/State.js"
-import { Action } from "@/src/domain/entities/Action.js"
-import { UnexpectedModuleFlow } from "@/src/domain/entities/errors.js"
+import { Module } from "@/application/ports/Module.js"
+import { NonFinalState, State } from "@/domain/entities/State.js"
+import { isFinal, isNonFinal } from "@/domain/services/State.js"
+import { Action } from "@/domain/entities/Action.js"
+import { UnexpectedModuleFlow } from "@/domain/entities/errors.js"
 import { isBotEvent, newBotEvent, BotEvent } from "./Event.js"
 import { BotState } from "./State.js"
 

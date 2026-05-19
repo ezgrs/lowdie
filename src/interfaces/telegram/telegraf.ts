@@ -1,4 +1,4 @@
-import { Agent } from "@/src/application/ports/Agent.js"
+import { Agent } from "@/application/ports/Agent.js"
 import { Context, Telegraf, Telegram } from "telegraf"
 import { message } from "telegraf/filters"
 

@@ -1,9 +1,9 @@
-import { DiscriminatedUnion } from "@/src/common/utils.js"
+import { DiscriminatedUnion } from "@/common/utils.js"
 import {
     FinalState,
     NonFinalState,
     State,
-} from "@/src/domain/entities/State.js"
+} from "@/domain/entities/State.js"
 
 export type RetryModuleState<S extends State> = DiscriminatedUnion<{
     active: { wrapped: NonFinalState<S> }

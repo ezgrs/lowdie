@@ -1,13 +1,13 @@
 import { APIGatewayProxyHandlerV2 } from "aws-lambda"
 import { StatusCodes } from "http-status-codes"
-import { telegrafOf } from "@/src/interfaces/telegram/telegraf.js"
-import { botSpecOf } from "@/src/interfaces/common/runner.js"
-import { PseudoRandomizer } from "@/src/infrastructure/services/randomizer/pseudo.js"
-import { TicTacToeAsciiBoardPresenter } from "@/src/interfaces/common/TicTacToeBoardPresenter.js"
+import { telegrafOf } from "@/interfaces/telegram/telegraf.js"
+import { botSpecOf } from "@/interfaces/common/runner.js"
+import { PseudoRandomizer } from "@/infrastructure/services/randomizer/pseudo.js"
+import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoardPresenter.js"
 import { DynamoBotStateDatabase } from "./database.js"
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
-import { TelegramInteractionChannel } from "@/src/infrastructure/services/interaction-channel/telegram.js"
-import { DatabaseBasedAgent } from "@/src/infrastructure/services/agent/database.js"
+import { TelegramInteractionChannel } from "@/infrastructure/services/interaction-channel/telegram.js"
+import { DatabaseBasedAgent } from "@/infrastructure/services/agent/database.js"
 
 const [telegraf] = telegrafOf({
     token: process.env["TELEGRAM_BOT_TOKEN"]!,

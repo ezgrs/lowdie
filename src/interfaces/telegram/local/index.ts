@@ -1,11 +1,11 @@
-import { PseudoRandomizer } from "@/src/infrastructure/services/randomizer/pseudo.js"
+import { PseudoRandomizer } from "@/infrastructure/services/randomizer/pseudo.js"
 import dotenv from "dotenv"
-import { runModuleLoop, botSpecOf } from "@/src/interfaces/common/runner.js"
-import { TicTacToeAsciiBoardPresenter } from "@/src/interfaces/common/TicTacToeBoardPresenter.js"
-import { telegrafOf } from "@/src/interfaces/telegram/telegraf.js"
-import { TelegramInteractionChannel } from "@/src/infrastructure/services/interaction-channel/telegram.js"
-import { MemoryBasedAgent } from "@/src/infrastructure/services/agent/memory.js"
-import { InteractionChannelBasedAgent } from "@/src/infrastructure/services/agent/interaction-channel.js"
+import { runModuleLoop, botSpecOf } from "@/interfaces/common/runner.js"
+import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoardPresenter.js"
+import { telegrafOf } from "@/interfaces/telegram/telegraf.js"
+import { TelegramInteractionChannel } from "@/infrastructure/services/interaction-channel/telegram.js"
+import { MemoryBasedAgent } from "@/infrastructure/services/agent/memory.js"
+import { InteractionChannelBasedAgent } from "@/infrastructure/services/agent/interaction-channel.js"
 
 async function main() {
     dotenv.config()

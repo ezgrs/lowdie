@@ -1,8 +1,8 @@
-import { DiscriminatedUnion } from "@/src/common/utils.js"
+import { DiscriminatedUnion } from "@/common/utils.js"
 import {
     TicTacToeDifficulty,
     TicTacToeSymbol,
-} from "@/src/domain/entities/TicTacToe.js"
+} from "@/domain/entities/TicTacToe.js"
 
 export type TicTacToeGameEvent = DiscriminatedUnion<{
     userStartedPropertySetup: { property: "playerSymbol" | "difficulty" }

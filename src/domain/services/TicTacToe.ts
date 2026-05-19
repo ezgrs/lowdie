@@ -1,11 +1,11 @@
-import { Randomizer } from "@/src/application/ports/Randomizer.js"
-import { GameResult } from "@/src/domain/entities/GameResult.js"
+import { Randomizer } from "@/application/ports/Randomizer.js"
+import { GameResult } from "@/domain/entities/GameResult.js"
 import {
     TicTacToeMatrix,
     TicTacToeMatrixLocation,
     TicTacToeAxis,
     TicTacToeSymbol,
-} from "@/src/domain/entities/TicTacToe.js"
+} from "@/domain/entities/TicTacToe.js"
 
 export function oppositeSymbolOf(symbol: TicTacToeSymbol): TicTacToeSymbol {
     return symbol === "X" ? "O" : "X"

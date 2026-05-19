@@ -2,7 +2,7 @@ import {
     InteractionChannel,
     InteractionChoice,
     InteractionOptions,
-} from "@/src/application/ports/InteractionChannel.js"
+} from "@/application/ports/InteractionChannel.js"
 import SuperJSON from "superjson"
 import { Markup, Telegram } from "telegraf"
 

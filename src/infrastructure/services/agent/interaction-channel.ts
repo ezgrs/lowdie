@@ -1,13 +1,13 @@
-import { Agent } from "@/src/application/ports/Agent.js"
+import { Agent } from "@/application/ports/Agent.js"
 import {
     InteractionChannel,
     InteractionOptions,
     InteractionChoice,
-} from "@/src/application/ports/InteractionChannel.js"
+} from "@/application/ports/InteractionChannel.js"
 import {
     SessionTimeoutError,
     SessionReplacedError,
-} from "@/src/domain/entities/errors.js"
+} from "@/domain/entities/errors.js"
 
 type PendingInteractionBase<T> = {
     resolve: (value: T) => void

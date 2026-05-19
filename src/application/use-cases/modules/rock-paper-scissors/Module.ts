@@ -1,8 +1,8 @@
-import { Randomizer } from "@/src/application/ports/Randomizer.js"
-import { Module } from "@/src/application/ports/Module.js"
-import { moves } from "@/src/domain/entities/RockPaperScissors.js"
-import { NonFinalState } from "@/src/domain/entities/State.js"
-import { Action } from "@/src/domain/entities/Action.js"
+import { Randomizer } from "@/application/ports/Randomizer.js"
+import { Module } from "@/application/ports/Module.js"
+import { moves } from "@/domain/entities/RockPaperScissors.js"
+import { NonFinalState } from "@/domain/entities/State.js"
+import { Action } from "@/domain/entities/Action.js"
 import { RockPaperScissorsGameEvent } from "./Event.js"
 import { RockPaperScissorsGameState } from "./State.js"
 

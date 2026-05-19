@@ -1,14 +1,14 @@
-import { Action } from "@/src/domain/entities/Action.js"
-import { UnexpectedModuleFlow } from "@/src/domain/entities/errors.js"
-import { NonFinalState } from "@/src/domain/entities/State.js"
-import { TicTacToeBoard } from "@/src/domain/services/tic-tac-toe/board.js"
-import { strategyFromDifficulty } from "@/src/domain/services/tic-tac-toe/strategy.js"
+import { Action } from "@/domain/entities/Action.js"
+import { UnexpectedModuleFlow } from "@/domain/entities/errors.js"
+import { NonFinalState } from "@/domain/entities/State.js"
+import { TicTacToeBoard } from "@/domain/services/tic-tac-toe/board.js"
+import { strategyFromDifficulty } from "@/domain/services/tic-tac-toe/strategy.js"
 import {
     oppositeSymbolOf,
     gameResultOf,
-} from "@/src/domain/services/TicTacToe.js"
-import { Module } from "@/src/application/ports/Module.js"
-import { Randomizer } from "@/src/application/ports/Randomizer.js"
+} from "@/domain/services/TicTacToe.js"
+import { Module } from "@/application/ports/Module.js"
+import { Randomizer } from "@/application/ports/Randomizer.js"
 import { TicTacToeGameEvent } from "./Event.js"
 import { TicTacToeGameState } from "./State.js"
 
