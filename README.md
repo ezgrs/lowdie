@@ -152,3 +152,7 @@ For a description of the Bot API, see this page: https://core.telegram.org/bots/
 ```shell
 npm run telegram
 ```
+
+#### On a cloud service
+
+Take a look at the [cloud.md](cloud.md) file for more info.
