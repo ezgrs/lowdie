@@ -8,7 +8,7 @@ without altering the core logic.
 
 Here's Lowdie (pronounced low as in "low temperature" + dee as in the letter D):
 
-![](https://cdn1.telesco.pe/file/aendRPE3-X61D5SKwugtfVCBhOzxooCbE6YKl_Nrg7D-GxHzXoa5IuEuKvxJyZb7nAKPGiSJrdslz3C6GJnyw56ug1w8aokep3w3AFemjPYqLuu_JteB7GYcK0SHFn3dCiYS1y8zPX-V2LcHCuZ9Wmgwpx8_jK6WSIcyrty5cFY2w0GB1Ohj2D9pBbUEMZ-JN5S08qcQBN0kPIVhCC098aNc9RJyhv2nLpD84IuQk0WBSNl85o4_xAXx14Qdisczn8YiChkFVJxbDh7FkZpTZ9G4i4qTlFIRmFtd58w7Hc9W_WBUmLXghw7cxnq1Z2A4a7-qJCQAfH5r-ar8uU_y-g.jpg)
+<img alt="A Lowdie bot" height="300" src="https://i.imgur.com/AgvVOsg.jpg" title="Lowdie"/>
 
 It can play rock-paper-scissors and tic-tac-toe. It's learning how to play Battleship.
 
