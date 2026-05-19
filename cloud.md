@@ -4,20 +4,18 @@ This project is integrated with AWS and this tutorial explains from scratch how 
 
 <!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
 
-<!-- TOC start (generated with https://github.com/derlin/bitdowntoc) -->
-
-- [Cloud](#cloud)
-    * [Setting up](#setting-up)
-        + [IAM](#iam)
-        + [IAM Identity Center](#iam-identity-center)
-        + [CLI ](#cli)
-    * [Deploying](#deploying)
-        + [DynamoDB](#dynamodb)
-        + [AWS Lambda](#aws-lambda)
-        + [API Gateway](#api-gateway)
-        + [Telegram](#telegram)
-
-<!-- TOC end -->
+ * [Setting up](#setting-up)
+     + [IAM](#iam)
+     + [IAM Identity Center](#iam-identity-center)
+     + [CLI ](#cli)
+ * [Deploying](#deploying)
+     + [DynamoDB](#dynamodb)
+     + [AWS Lambda](#aws-lambda)
+     + [API Gateway](#api-gateway)
+     + [Telegram](#telegram)
+ * [CI/CD](#cicd)
+     + [Setting up](#setting-up-1)
+     + [Integrating](#integrating)
 
 <!-- TOC end -->
 
@@ -368,3 +366,120 @@ curl
 {"ok":true,"result":true,"description":"Webhook was set"}
 ```
 
+
+## CI/CD
+
+The CI/CD policy and role creation will be done fully on the CLI instead of using the console.
+
+### Setting up
+
+1. Create a `Lowdie-IAMManagerPolicy` only once in the Console with the following JSON contents:
+
+```json
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Sid": "IAMManagement",
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateOpenIDConnectProvider",
+                "iam:CreatePolicy",
+                "iam:CreateRole",
+                "iam:AttachRolePolicy"
+            ],
+            "Resource": "*"
+        }
+    ]
+}
+```
+
+2. Create its respective permission set as `Lowdie-IAMManagerPermissionSet`
+3. Run `aws configure sso --profile iammanager` choosing that permission set on the dropdown list
+4. Create a local _policy.json_ file with the following contents:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Action": [
+        "lambda:UpdateFunctionCode",
+        "lambda:GetFunction",
+        "lambda:GetFunctionConfiguration"
+      ],
+      "Resource": "arn:aws:lambda:PROJECT_REGION:AWS_ACCOUNT_ID:function:Lowdie-TelegramWebhook"
+    }
+  ]
+}
+```
+
+5. Create a local _trust-policy.json_ file with the following contents:
+
+```json
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Effect": "Allow",
+      "Principal": {
+        "Federated": "arn:aws:iam::AWS_ACCOUNT_ID:oidc-provider/token.actions.githubusercontent.com"
+      },
+      "Action": "sts:AssumeRoleWithWebIdentity",
+      "Condition": {
+        "StringEquals": {
+          "token.actions.githubusercontent.com:aud": "sts.amazonaws.com"
+        },
+        "StringLike": {
+          "token.actions.githubusercontent.com:sub": "repo:GITHUB_USERNAME/GITHUB_PROJECT_REPOSITORY:environment:production"
+        }
+      }
+    }
+  ]
+}
+```
+
+> If you're not using GitHub environments, you can use
+> `repo:GITHUB_USERNAME/GITHUB_PROJECT_REPOSITORY:ref:refs/heads/main` on the `sub` variable.
+
+### Integrating
+
+1. Create a Open ID Connect provider associated with GitHub:
+
+```shell
+aws iam create-open-id-connect-provider
+   --url https://token.actions.githubusercontent.com
+   --client-id-list sts.amazonaws.com
+   --profile iammanager
+```
+
+2. Create a `Lowdie-WebhookDeployerPolicy` describing what the deployer will have access:
+
+```shell
+aws iam create-policy
+   --policy-name Lowdie-WebhookDeployerPolicy
+   --policy-document file://policy.json
+   --profile iammanager
+```
+
+3. Create a `Lowdie-WebhookDeployerRole` that the GitHub runner will use to deploy:
+
+```shell
+aws iam create-role
+   --role-name Lowdie-WebhookDeployerRole
+   --assume-role-policy-document file://trust-policy.json
+   --profile iammanager
+```
+
+4. Link the role with its policy:
+
+```shell
+aws iam attach-role-policy
+   --role-name Lowdie-WebhookDeployerRole
+   --policy-arn arn:aws:iam::AWS_ACCOUNT_ID:policy/Lowdie-WebhookDeployerPolicy
+   --profile iammanager
+```
+
+5. Take a look at [.github/workflows/deploy.yml](.github/workflows/deploy.yml) to see
+   how to configure your workflow file using the created role
