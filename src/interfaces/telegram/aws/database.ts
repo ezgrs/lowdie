@@ -12,7 +12,7 @@ import { BotState } from "../../../application/use-cases/modules/bot/State.js"
 
 export class DynamoBotStateDatabase implements BotStateDatabase {
     private readonly client: DynamoDBDocumentClient
-    private readonly tableName: string = "lowdie-Session"
+    private readonly tableName: string = "Lowdie-Session"
 
     constructor(client: DynamoDBClient) {
         this.client = DynamoDBDocumentClient.from(client)
