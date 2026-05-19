@@ -1,7 +1,7 @@
 import { Event as BaseEvent } from "@/domain/entities/Event.js"
 import { DiscriminatedUnion } from "@/common/utils.js"
 
-declare const source: unique symbol
+const source: unique symbol = Symbol("source")
 
 type Event = DiscriminatedUnion<{
     userProceeded: {}
