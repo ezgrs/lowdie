@@ -5,7 +5,6 @@ import { isNonFinal } from "@/domain/services/State.js"
 import { Event } from "@/domain/entities/Event.js"
 import { Agent } from "@/application/ports/Agent.js"
 import { InteractionChannel } from "@/application/ports/InteractionChannel.js"
-import { Action } from "@/domain/entities/Action.js"
 
 export interface BotStateDatabase {
     set(chatId: number, state: BotState): Promise<void>
@@ -14,13 +13,13 @@ export interface BotStateDatabase {
 
 type Args = {
     database: BotStateDatabase
-    spec: ModuleSpec<BotState, BotEvent<Event>, any>
+    spec: ModuleSpec<BotState, BotEvent<Event>>
     onChannel: (chatId: number) => InteractionChannel
 }
 
 export class DatabaseBasedAgent implements Agent {
     private readonly database: BotStateDatabase
-    private readonly spec: ModuleSpec<BotState, BotEvent<Event>, any>
+    private readonly spec: ModuleSpec<BotState, BotEvent<Event>>
     private readonly onChannel: (chatId: number) => InteractionChannel
 
     constructor(args: Args) {
@@ -41,32 +40,9 @@ export class DatabaseBasedAgent implements Agent {
 
         if (isNonFinal(state)) {
             const action = this.spec.module.getAction(state)
-
-            const minifier = this.spec.minifier
-            let minifiedAction: Action<BotEvent<Event>>
-            switch (action.type) {
-                case "select":
-                    minifiedAction = {
-                        type: "select",
-                        choices: action.choices.map((event) =>
-                            minifier.encode(state, event),
-                        ),
-                    }
-                    break
-                case "input":
-                    minifiedAction = {
-                        type: "input",
-                        parser: (input) => {
-                            const event = action.parser(input)
-                            if (event == null) return null
-                            return minifier.encode(state, event)
-                        },
-                    }
-                    break
-            }
             await executeAction({
                 channel: channel,
-                action: minifiedAction,
+                action: action,
                 label: messages[messages.length - 1],
                 signal: undefined,
                 sessionTtlMs: undefined,
@@ -116,14 +92,13 @@ export class DatabaseBasedAgent implements Agent {
             const action = this.spec.module.getAction(state)
             switch (action.type) {
                 case "select":
-                    let obj: any
+                    let event: BotEvent<Event>
                     try {
-                        obj = JSON.parse(data)
+                        event = JSON.parse(data)
                     } catch (e) {
                         console.log(`answered: failed to deserialize ${data}`)
                         return await this.started(chatId)
                     }
-                    const event = this.spec.minifier.decode(state, obj)
                     return await this.processState(
                         chatId,
                         this.spec.module.applyEvent(state, event),
