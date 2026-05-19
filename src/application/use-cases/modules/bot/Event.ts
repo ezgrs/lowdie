@@ -14,7 +14,12 @@ export type BotEvent<E> = E | AnnotatedBotEvent
 export function isBotEvent<E extends BaseEvent>(
     x: BotEvent<E>,
 ): x is AnnotatedBotEvent {
-    return source in x
+    return (
+        typeof x === "object" &&
+        x !== null &&
+        source in x &&
+        x[source] === "bot"
+    )
 }
 
 export function newBotEvent(event: Event): AnnotatedBotEvent {

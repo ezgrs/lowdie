@@ -15,7 +15,12 @@ export type RetryModuleEvent<E> = E | AnnotatedRetryModuleEvent
 export function isRetryModuleEvent<E extends BaseEvent>(
     x: RetryModuleEvent<E>,
 ): x is AnnotatedRetryModuleEvent {
-    return source in x
+    return (
+        typeof x === "object" &&
+        x !== null &&
+        source in x &&
+        x[source] === "retry"
+    )
 }
 
 export function newRetryModuleEvent(event: Event): AnnotatedRetryModuleEvent {
