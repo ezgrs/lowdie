@@ -33,20 +33,18 @@ export class DatabaseBasedAgent implements Agent {
 
         await this.database.set(chatId, state)
 
-        const messages = this.spec.renderer.onState(state)
+        const messages = this.spec.renderer.messagesOf(state)
         for (const message of messages.slice(0, -1)) {
             await channel.send(message)
         }
 
         if (isNonFinal(state)) {
-            const action = this.spec.module.getAction(state)
             await executeAction({
+                spec: this.spec,
+                state: state,
                 channel: channel,
-                action: action,
-                label: messages[messages.length - 1],
-                signal: undefined,
-                sessionTtlMs: undefined,
-                renderEvent: (e) => this.spec.renderer.onEvent(state, e),
+                prompt: messages[messages.length - 1],
+                options: undefined,
             })
         }
     }
@@ -88,6 +86,7 @@ export class DatabaseBasedAgent implements Agent {
             console.log("answered: user has no database state")
             return await this.started(chatId)
         }
+
         if (isNonFinal(state)) {
             const action = this.spec.module.getAction(state)
             switch (action.type) {

@@ -1,5 +1,6 @@
 import { Module } from "@/application/ports/Module.js"
 import { NonFinalState, State } from "@/domain/entities/State.js"
+import { Event } from "@/domain/entities/Event.js"
 import { isFinal, isNonFinal } from "@/domain/services/State.js"
 import { Action } from "@/domain/entities/Action.js"
 import { UnexpectedModuleFlow } from "@/domain/entities/errors.js"

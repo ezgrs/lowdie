@@ -168,7 +168,7 @@ export class InteractionChannelBasedAgent implements InteractionChannel, Agent {
             throw new Error("Another interaction is already pending")
         }
 
-        await this.channel.askText(message)
+        await this.channel.askText(message, options)
 
         let executor: Executor<string>
         executor = (resolve, reject) => {
@@ -196,11 +196,7 @@ export class InteractionChannelBasedAgent implements InteractionChannel, Agent {
             throw new Error("Another interaction is already pending")
         }
 
-        if (options == null) {
-            await this.channel.askChoices(message, choices)
-        } else {
-            await this.channel.askChoices(message, choices, options)
-        }
+        await this.channel.askChoices(message, choices, options)
 
         const choiceMap = new Map<string, T>()
         choices.forEach((choice, index) => {
