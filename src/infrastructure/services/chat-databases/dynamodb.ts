@@ -1,5 +1,4 @@
-import { BotStateDatabase } from "@/application/ports/BotStateDatabase.js"
-import { BotState } from "@/domain/states/BotState.js"
+import { ChatDatabase } from "@/application/ports/ChatDatabase.js"
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
 
 import {
@@ -10,7 +9,7 @@ import {
 
 import { SuperJSON } from "superjson"
 
-export class DynamoDBBotStateDatabase implements BotStateDatabase {
+export class DynamoDBChatDatabase<T> implements ChatDatabase<T> {
     private readonly client: DynamoDBDocumentClient
     private readonly tableName: string = "Lowdie-Session"
 
@@ -18,8 +17,8 @@ export class DynamoDBBotStateDatabase implements BotStateDatabase {
         this.client = DynamoDBDocumentClient.from(client)
     }
 
-    async set(chatId: number, state: BotState): Promise<void> {
-        const serialized = SuperJSON.serialize(state)
+    async set(chatId: number, value: T): Promise<void> {
+        const serialized = SuperJSON.serialize(value)
 
         await this.client.send(
             new PutCommand({
@@ -32,7 +31,7 @@ export class DynamoDBBotStateDatabase implements BotStateDatabase {
         )
     }
 
-    async get(chatId: number): Promise<BotState | undefined> {
+    async get(chatId: number): Promise<T | undefined> {
         const res = await this.client.send(
             new GetCommand({
                 TableName: this.tableName,
@@ -43,6 +42,6 @@ export class DynamoDBBotStateDatabase implements BotStateDatabase {
         const state = res.Item?.["state"]
         if (state == null) return undefined
         const parsed = SuperJSON.deserialize(state)
-        return parsed as BotState
+        return parsed as T
     }
 }

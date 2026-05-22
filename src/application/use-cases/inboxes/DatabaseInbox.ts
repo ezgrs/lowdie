@@ -3,18 +3,18 @@ import { Event } from "@/domain/events/Event.js"
 import { Inbox } from "@/application/use-cases/inboxes/Inbox.js"
 import { BotEvent } from "@/domain/events/BotEvent.js"
 import { BotState } from "@/domain/states/BotState.js"
-import { BotStateDatabase } from "@/application/ports/BotStateDatabase.js"
+import { ChatDatabase } from "@/application/ports/ChatDatabase.js"
 import { executeAction, ModuleSpec } from "../runner.js"
 import { Chat } from "@/application/ports/Chat.js"
 
 type Args = {
-    database: BotStateDatabase
+    database: ChatDatabase<BotState>
     spec: ModuleSpec<BotState, BotEvent<Event>>
     onChat: (chatId: number) => Chat
 }
 
 export class DatabaseInbox implements Inbox {
-    private readonly database: BotStateDatabase
+    private readonly database: ChatDatabase<BotState>
     private readonly spec: ModuleSpec<BotState, BotEvent<Event>>
     private readonly onChat: (chatId: number) => Chat
 
