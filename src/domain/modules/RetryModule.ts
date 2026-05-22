@@ -10,15 +10,24 @@ import {
 import { RetryModuleState } from "@/domain/states/RetryModuleState.js"
 import { NonFinalState, State } from "../states/State.js"
 import { UnexpectedModuleFlow } from "../errors/UnexpectedModuleFlowError.js"
+import { Game } from "./Game.js"
 
 export class RetryModule<S extends State, E extends Event> implements Module<
     RetryModuleState<S>,
     RetryModuleEvent<E>
 > {
-    constructor(private module: Module<S, E>) {}
+    constructor(private game: Game<S, E>) {}
 
     getInitialState(): NonFinalState<RetryModuleState<S>> {
-        return { type: "active", wrapped: this.module.getInitialState() }
+        return {
+            type: "active",
+            wrapped: this.game.getInitialState(),
+            stats: {
+                win: 0,
+                draw: 0,
+                lose: 0,
+            },
+        }
     }
 
     applyEvent(
@@ -30,23 +39,39 @@ export class RetryModule<S extends State, E extends Event> implements Module<
                 case "userProceeded":
                     switch (state.type) {
                         case "waiting":
-                            return this.getInitialState()
+                            return {
+                                type: "active",
+                                wrapped: this.game.getInitialState(),
+                                stats: state.stats,
+                            }
                     }
                     throw new UnexpectedModuleFlow(event.type, state.type)
                 case "userCanceled":
                     switch (state.type) {
                         case "waiting":
-                            return { type: "done", wrapped: state.wrapped }
+                            return {
+                                type: "done",
+                                wrapped: state.wrapped,
+                                stats: state.stats,
+                            }
                     }
                     throw new UnexpectedModuleFlow(event.type, state.type)
             }
         }
-        const newState = this.module.applyEvent(state.wrapped, event)
+        const newState = this.game.applyEvent(state.wrapped, event)
         if (isNonFinal(newState)) {
-            return { type: "active", wrapped: newState }
+            return { type: "active", wrapped: newState, stats: state.stats }
         }
         if (isFinal(newState)) {
-            return { type: "waiting", wrapped: newState }
+            const result = this.game.gameResultOf(newState)
+            return {
+                type: "waiting",
+                wrapped: newState,
+                stats: {
+                    ...state.stats,
+                    [result]: (state.stats[result] ?? 0) + 1,
+                },
+            }
         }
         throw new Error()
     }
@@ -56,7 +81,7 @@ export class RetryModule<S extends State, E extends Event> implements Module<
     ): Action<RetryModuleEvent<E>> {
         switch (state.type) {
             case "active":
-                return this.module.getAction(state.wrapped)
+                return this.game.getAction(state.wrapped)
             case "waiting":
                 return {
                     type: "select",

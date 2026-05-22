@@ -1,4 +1,8 @@
-import { RetryModuleEvent, isRetryModuleEvent, newRetryModuleEvent } from "../events/RetryModuleEvent.js"
+import {
+    RetryModuleEvent,
+    isRetryModuleEvent,
+    newRetryModuleEvent,
+} from "../events/RetryModuleEvent.js"
 import { RetryModuleState } from "../states/RetryModuleState.js"
 import { State } from "../states/State.js"
 import { Event } from "../events/Event.js"

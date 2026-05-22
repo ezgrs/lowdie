@@ -3,20 +3,21 @@ import { Randomizer } from "@/application/ports/Randomizer.js"
 import { TicTacToeGameState } from "@/domain/states/TicTacToeGameState.js"
 import { TicTacToeGameEvent } from "@/domain/events/TicTacToeGameEvent.js"
 import { UnexpectedModuleFlow } from "../../../domain/errors/UnexpectedModuleFlowError.js"
-import { NonFinalState } from "../../../domain/states/State.js"
+import { FinalState, NonFinalState } from "../../../domain/states/State.js"
 import {
     oppositeSymbolOf,
     gameResultOf,
 } from "../../../domain/tic-tac-toe/rules.js"
 import { strategyFromDifficulty } from "../tic-tac-toe/strategy.js"
 import { TicTacToeBoard } from "../TicTacToeBoard.js"
-import { Module } from "../../../domain/modules/Module.js"
+import { Game } from "@/domain/modules/Game.js"
+import { GameResult } from "@/domain/GameResult.js"
 
 type Args = {
     randomizer: Randomizer
 }
 
-export class TicTacToeGame implements Module<
+export class TicTacToeGame implements Game<
     TicTacToeGameState,
     TicTacToeGameEvent
 > {
@@ -24,6 +25,10 @@ export class TicTacToeGame implements Module<
 
     constructor(args: Args) {
         this.randomizer = args.randomizer
+    }
+
+    gameResultOf(state: FinalState<TicTacToeGameState>): GameResult {
+        return state.result
     }
 
     getInitialState(): NonFinalState<TicTacToeGameState> {

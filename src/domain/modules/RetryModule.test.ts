@@ -1,22 +1,24 @@
 import { beforeEach, describe, expect, jest, test } from "@jest/globals"
 import { RetryModule } from "./RetryModule.js"
 
-let wrappedModule: {
+let wrappedGame: {
     getInitialState: ReturnType<typeof jest.fn>
     applyEvent: ReturnType<typeof jest.fn>
     getAction: ReturnType<typeof jest.fn>
+    gameResultOf: ReturnType<typeof jest.fn>
 }
 
 let retryModule: RetryModule<any, any>
 
 beforeEach(() => {
-    wrappedModule = {
+    wrappedGame = {
         getInitialState: jest.fn(),
         applyEvent: jest.fn(),
         getAction: jest.fn(),
+        gameResultOf: jest.fn(),
     }
 
-    retryModule = new RetryModule(wrappedModule)
+    retryModule = new RetryModule(wrappedGame)
 })
 
 afterEach(() => {
@@ -25,13 +27,13 @@ afterEach(() => {
 
 describe("getInitialState", () => {
     test("should return active state with wrapped initial state", () => {
-        wrappedModule.getInitialState.mockReturnValue({
+        wrappedGame.getInitialState.mockReturnValue({
             type: "playing",
         })
 
         const result = retryModule.getInitialState()
 
-        expect(wrappedModule.getInitialState).toHaveBeenCalled()
+        expect(wrappedGame.getInitialState).toHaveBeenCalled()
 
         expect(result).toEqual({
             type: "active",
@@ -45,7 +47,7 @@ describe("getInitialState", () => {
 describe("applyEvent", () => {
     describe("when receiving subEventEmitted", () => {
         test("should stay active when wrapped module returns non-final state", () => {
-            wrappedModule.applyEvent.mockReturnValue({
+            wrappedGame.applyEvent.mockReturnValue({
                 type: "playing",
             })
 
@@ -55,6 +57,7 @@ describe("applyEvent", () => {
                     wrapped: {
                         type: "playing",
                     },
+                    stats: { win: 0, draw: 0, lose: 0 },
                 },
                 {
                     type: "subEventEmitted",
@@ -64,7 +67,7 @@ describe("applyEvent", () => {
                 },
             )
 
-            expect(wrappedModule.applyEvent).toHaveBeenCalledWith(
+            expect(wrappedGame.applyEvent).toHaveBeenCalledWith(
                 { type: "playing" },
                 { type: "moveMade" },
             )
@@ -78,7 +81,7 @@ describe("applyEvent", () => {
         })
 
         test("should transition to waiting when wrapped module returns final state", () => {
-            wrappedModule.applyEvent.mockReturnValue({
+            wrappedGame.applyEvent.mockReturnValue({
                 type: "done",
                 result: "win",
             })
@@ -89,6 +92,7 @@ describe("applyEvent", () => {
                     wrapped: {
                         type: "playing",
                     },
+                    stats: { win: 0, draw: 0, lose: 0 },
                 },
                 {
                     type: "subEventEmitted",
@@ -115,6 +119,7 @@ describe("applyEvent", () => {
                         wrapped: {
                             type: "done",
                         },
+                        stats: { win: 0, draw: 0, lose: 0 },
                     },
                     {
                         type: "subEventEmitted",
@@ -127,7 +132,7 @@ describe("applyEvent", () => {
 
     describe("when receiving userProceeded", () => {
         test("should restart the wrapped module from waiting state", () => {
-            wrappedModule.getInitialState.mockReturnValue({
+            wrappedGame.getInitialState.mockReturnValue({
                 type: "playing",
             })
 
@@ -137,6 +142,7 @@ describe("applyEvent", () => {
                     wrapped: {
                         type: "done",
                     },
+                    stats: { win: 0, draw: 0, lose: 0 },
                 },
                 {
                     type: "userProceeded",
@@ -159,6 +165,7 @@ describe("applyEvent", () => {
                         wrapped: {
                             type: "playing",
                         },
+                        stats: { win: 0, draw: 0, lose: 0 },
                     },
                     {
                         type: "userProceeded",
@@ -177,6 +184,7 @@ describe("applyEvent", () => {
                         type: "done",
                         result: "lose",
                     },
+                    stats: { win: 0, draw: 0, lose: 0 },
                 },
                 {
                     type: "userCanceled",
@@ -200,6 +208,7 @@ describe("applyEvent", () => {
                         wrapped: {
                             type: "playing",
                         },
+                        stats: { win: 0, draw: 0, lose: 0 },
                     },
                     {
                         type: "userCanceled",
@@ -213,7 +222,7 @@ describe("applyEvent", () => {
 describe("getAction", () => {
     describe("when wrapped action is select", () => {
         test("should wrap select choices as sub events", () => {
-            wrappedModule.getAction.mockReturnValue({
+            wrappedGame.getAction.mockReturnValue({
                 type: "select",
                 choices: [{ type: "moveA" }, { type: "moveB" }],
             })
@@ -223,6 +232,7 @@ describe("getAction", () => {
                 wrapped: {
                     type: "playing",
                 },
+                stats: { win: 0, draw: 0, lose: 0 },
             })
 
             expect(result).toEqual({
@@ -247,7 +257,7 @@ describe("getAction", () => {
 
     describe("when wrapped action is input", () => {
         test("should wrap parser results as sub events", () => {
-            wrappedModule.getAction.mockReturnValue({
+            wrappedGame.getAction.mockReturnValue({
                 type: "input",
                 parser: (input: string) => ({
                     type: "submitted",
@@ -260,6 +270,7 @@ describe("getAction", () => {
                 wrapped: {
                     type: "playing",
                 },
+                stats: { win: 0, draw: 0, lose: 0 },
             })
 
             expect(result.type).toBe("input")
@@ -285,6 +296,7 @@ describe("getAction", () => {
                 wrapped: {
                     type: "done",
                 },
+                stats: { win: 0, draw: 0, lose: 0 },
             })
 
             expect(result).toEqual({

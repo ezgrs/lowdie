@@ -2,15 +2,17 @@ import { Randomizer } from "@/application/ports/Randomizer.js"
 import { Action } from "@/domain/Action.js"
 import { RockPaperScissorsGameEvent } from "@/domain/events/RockPaperScissorsGameEvent.js"
 import { RockPaperScissorsGameState } from "@/domain/states/RockPaperScissorsGameState.js"
-import { NonFinalState } from "../../../domain/states/State.js"
+import { FinalState, NonFinalState } from "../../../domain/states/State.js"
 import { RockPaperScissorsMove } from "../../../domain/rock-paper-scissors/RockPaperScissorsMove.js"
-import { Module } from "../../../domain/modules/Module.js"
+import { Game } from "@/domain/modules/Game.js"
+import { GameResult } from "@/domain/GameResult.js"
+import { evaluateGame } from "@/domain/rock-paper-scissors/rules.js"
 
 type Args = {
     randomizer: Randomizer
 }
 
-export class RockPaperScissorsGame implements Module<
+export class RockPaperScissorsGame implements Game<
     RockPaperScissorsGameState,
     RockPaperScissorsGameEvent
 > {
@@ -18,6 +20,10 @@ export class RockPaperScissorsGame implements Module<
 
     constructor(args: Args) {
         this.randomizer = args.randomizer
+    }
+
+    gameResultOf(state: FinalState<RockPaperScissorsGameState>): GameResult {
+        return evaluateGame(state.botMove, state.userMove)
     }
 
     getInitialState(): NonFinalState<RockPaperScissorsGameState> {

@@ -17,22 +17,22 @@ export function botSpecOf(
     randomizer: Randomizer,
     ticTacToeBoardPresenter: TicTacToeBoardPresenter,
 ): ModuleSpec<BotState, BotEvent<any>> {
-    let specs: ModuleSpec<State, any>[] = [
+    const specs: ModuleSpec<State, any>[] = [
         {
-            module: new RockPaperScissorsGame({ randomizer }),
-            renderer: new RockPaperScissorsGameRenderer(),
+            module: new RetryModule(new RockPaperScissorsGame({ randomizer })),
+            renderer: new RetryModuleRenderer(
+                new RockPaperScissorsGameRenderer(),
+            ),
         },
         {
-            module: new TicTacToeGame({ randomizer }),
-            renderer: new TicTacToeGameRenderer({
-                boardPresenter: ticTacToeBoardPresenter,
-            }),
+            module: new RetryModule(new TicTacToeGame({ randomizer })),
+            renderer: new RetryModuleRenderer(
+                new TicTacToeGameRenderer({
+                    boardPresenter: ticTacToeBoardPresenter,
+                }),
+            ),
         },
     ]
-    specs = specs.map((spec) => ({
-        module: new RetryModule(spec.module),
-        renderer: new RetryModuleRenderer(spec.renderer),
-    }))
     return {
         module: new BotModule(specs.map((spec) => spec.module)),
         renderer: new BotRenderer(specs.map((spec) => spec.renderer)),

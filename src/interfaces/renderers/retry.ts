@@ -35,6 +35,9 @@ export class RetryModuleRenderer<
             case "done":
                 return []
             case "waiting":
+                messages.push(
+                    `Placar: eu ${state.stats.lose} x ${state.stats.win} você`,
+                )
                 messages.push(t("bot:retry.prompt"))
         }
         return messages
