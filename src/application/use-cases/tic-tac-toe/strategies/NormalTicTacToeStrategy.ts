@@ -11,6 +11,12 @@ export class NormalTicTacToeStrategy implements TicTacToeStrategy {
     constructor(private strategy: TicTacToeStrategy) {}
 
     nextMove(matrix: TicTacToeMatrix, symbol: TicTacToeSymbol): TicTacToeMove {
+        // If the wrapped strategy knows better, pick that one
+        const move = this.strategy.nextMove(matrix, symbol)
+        if (move.type !== "random") {
+            return move
+        }
+
         const opponentSymbol = oppositeSymbolOf(symbol)
         for (const axis of axesOf(matrix)) {
             // Count the occurrence of each symbol
@@ -43,7 +49,7 @@ export class NormalTicTacToeStrategy implements TicTacToeStrategy {
             }
         }
 
-        // If there is no one-to-win situation, forward to an easier strategy
-        return this.strategy.nextMove(matrix, symbol)
+        // If there is no one-to-win situation, pick randomly
+        return move
     }
 }
