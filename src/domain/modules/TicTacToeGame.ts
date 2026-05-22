@@ -6,7 +6,7 @@ import { UnexpectedModuleFlow } from "../errors/UnexpectedModuleFlowError.js"
 import { NonFinalState } from "../states/State.js"
 import { oppositeSymbolOf, gameResultOf } from "../tic-tac-toe/rules.js"
 import { strategyFromDifficulty } from "../tic-tac-toe/strategy.js"
-import { TicTacToeBoard } from "../tic-tac-toe/TicTacToeBoard.js"
+import { TicTacToeBoard } from "../../application/use-cases/TicTacToeBoard.js"
 import { Module } from "./Module.js"
 
 type Args = {

@@ -1,6 +1,6 @@
 import { DiscriminatedUnion } from "@/common/utils.js"
 import { GameResult } from "@/domain/GameResult.js"
-import { TicTacToeBoard } from "../tic-tac-toe/TicTacToeBoard.js"
+import { TicTacToeBoard } from "../../application/use-cases/TicTacToeBoard.js"
 import { TicTacToeSymbol } from "../tic-tac-toe/TicTacToeSymbol.js"
 import { TicTacToeDifficulty } from "../tic-tac-toe/TicTacToeDifficulty.js"
 import { TicTacToeStrategy } from "../tic-tac-toe/strategies/TicTacToeStrategy.js"

@@ -1,12 +1,29 @@
 import { Randomizer } from "@/application/ports/Randomizer.js"
-import { randomEmptyPositionOf } from "./rules.js"
-import { TicTacToeMatrix } from "./TicTacToeMatrix.js"
-import { TicTacToeSymbol } from "./TicTacToeSymbol.js"
-import { TicTacToeMove } from "./TicTacToeMove.js"
+import { TicTacToeMatrix } from "../../domain/tic-tac-toe/TicTacToeMatrix.js"
+import { TicTacToeSymbol } from "../../domain/tic-tac-toe/TicTacToeSymbol.js"
+import { TicTacToeMove } from "../../domain/tic-tac-toe/TicTacToeMove.js"
 
 type Args = {
     randomizer: Randomizer
     matrix: TicTacToeMatrix
+}
+
+function randomEmptyPositionOf(
+    randomizer: Randomizer,
+    matrix: TicTacToeMatrix,
+): [number, number] | null {
+    const emptyPositions: [number, number][] = []
+    for (let r = 0; r < 3; r++) {
+        for (let c = 0; c < 3; c++) {
+            if (matrix[r]![c] == null) {
+                emptyPositions.push([r, c])
+            }
+        }
+    }
+    if (emptyPositions.length === 0) {
+        return null
+    }
+    return randomizer.choose(emptyPositions)
 }
 
 export class TicTacToeBoard {

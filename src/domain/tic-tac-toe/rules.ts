@@ -1,4 +1,3 @@
-import { Randomizer } from "@/application/ports/Randomizer.js"
 import { GameResult } from "@/domain/GameResult.js"
 import { TicTacToeAxis } from "./TicTacToeAxis.js"
 import { TicTacToeMatrix } from "./TicTacToeMatrix.js"
@@ -86,22 +85,4 @@ export function* axesOf(matrix: TicTacToeMatrix): Generator<TicTacToeAxis> {
             locations: [locations[0]!, locations[1]!, locations[2]!],
         }
     }
-}
-
-export function randomEmptyPositionOf(
-    randomizer: Randomizer,
-    matrix: TicTacToeMatrix,
-): [number, number] | null {
-    const emptyPositions: [number, number][] = []
-    for (let r = 0; r < 3; r++) {
-        for (let c = 0; c < 3; c++) {
-            if (matrix[r]![c] == null) {
-                emptyPositions.push([r, c])
-            }
-        }
-    }
-    if (emptyPositions.length === 0) {
-        return null
-    }
-    return randomizer.choose(emptyPositions)
 }
