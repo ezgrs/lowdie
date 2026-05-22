@@ -2,9 +2,9 @@ import { Randomizer } from "@/application/ports/Randomizer.js"
 import { Action } from "@/domain/Action.js"
 import { RockPaperScissorsGameEvent } from "@/domain/events/RockPaperScissorsGameEvent.js"
 import { RockPaperScissorsGameState } from "@/domain/states/RockPaperScissorsGameState.js"
-import { NonFinalState } from "../states/State.js"
-import { RockPaperScissorsMove } from "../rock-paper-scissors/RockPaperScissorsMove.js"
-import { Module } from "./Module.js"
+import { NonFinalState } from "../../../domain/states/State.js"
+import { RockPaperScissorsMove } from "../../../domain/rock-paper-scissors/RockPaperScissorsMove.js"
+import { Module } from "../../../domain/modules/Module.js"
 
 type Args = {
     randomizer: Randomizer

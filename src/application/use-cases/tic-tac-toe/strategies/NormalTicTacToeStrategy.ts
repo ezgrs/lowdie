@@ -1,7 +1,10 @@
-import { oppositeSymbolOf, axesOf } from "../rules.js"
-import { TicTacToeMatrix } from "../TicTacToeMatrix.js"
-import { TicTacToeMove } from "../TicTacToeMove.js"
-import { TicTacToeSymbol } from "../TicTacToeSymbol.js"
+import {
+    oppositeSymbolOf,
+    axesOf,
+} from "../../../../domain/tic-tac-toe/rules.js"
+import { TicTacToeMatrix } from "../../../../domain/tic-tac-toe/TicTacToeMatrix.js"
+import { TicTacToeMove } from "../../../../domain/tic-tac-toe/TicTacToeMove.js"
+import { TicTacToeSymbol } from "../../../../domain/tic-tac-toe/TicTacToeSymbol.js"
 import { TicTacToeStrategy } from "./TicTacToeStrategy.js"
 
 export class NormalTicTacToeStrategy implements TicTacToeStrategy {

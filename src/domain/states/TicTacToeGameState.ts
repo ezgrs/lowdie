@@ -3,7 +3,7 @@ import { GameResult } from "@/domain/GameResult.js"
 import { TicTacToeBoard } from "../../application/use-cases/TicTacToeBoard.js"
 import { TicTacToeSymbol } from "../tic-tac-toe/TicTacToeSymbol.js"
 import { TicTacToeDifficulty } from "../tic-tac-toe/TicTacToeDifficulty.js"
-import { TicTacToeStrategy } from "../tic-tac-toe/strategies/TicTacToeStrategy.js"
+import { TicTacToeStrategy } from "../../application/use-cases/tic-tac-toe/strategies/TicTacToeStrategy.js"
 
 export type TicTacToeGameState = DiscriminatedUnion<{
     settingUp: {

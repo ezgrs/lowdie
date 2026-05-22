@@ -2,12 +2,15 @@ import { Action } from "@/domain/Action.js"
 import { Randomizer } from "@/application/ports/Randomizer.js"
 import { TicTacToeGameState } from "@/domain/states/TicTacToeGameState.js"
 import { TicTacToeGameEvent } from "@/domain/events/TicTacToeGameEvent.js"
-import { UnexpectedModuleFlow } from "../errors/UnexpectedModuleFlowError.js"
-import { NonFinalState } from "../states/State.js"
-import { oppositeSymbolOf, gameResultOf } from "../tic-tac-toe/rules.js"
+import { UnexpectedModuleFlow } from "../../../domain/errors/UnexpectedModuleFlowError.js"
+import { NonFinalState } from "../../../domain/states/State.js"
+import {
+    oppositeSymbolOf,
+    gameResultOf,
+} from "../../../domain/tic-tac-toe/rules.js"
 import { strategyFromDifficulty } from "../tic-tac-toe/strategy.js"
-import { TicTacToeBoard } from "../../application/use-cases/TicTacToeBoard.js"
-import { Module } from "./Module.js"
+import { TicTacToeBoard } from "../TicTacToeBoard.js"
+import { Module } from "../../../domain/modules/Module.js"
 
 type Args = {
     randomizer: Randomizer

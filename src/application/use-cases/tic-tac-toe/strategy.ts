@@ -3,7 +3,7 @@ import { EasyTicTacToeStrategy } from "./strategies/EasyTicTacToeStrategy.js"
 import { HardTicTacToeStrategy } from "./strategies/HardTicTacToeStrategy.js"
 import { NormalTicTacToeStrategy } from "./strategies/NormalTicTacToeStrategy.js"
 import { TicTacToeStrategy } from "./strategies/TicTacToeStrategy.js"
-import { TicTacToeDifficulty } from "./TicTacToeDifficulty.js"
+import { TicTacToeDifficulty } from "../../../domain/tic-tac-toe/TicTacToeDifficulty.js"
 
 export function strategyFromDifficulty(
     difficulty: TicTacToeDifficulty,

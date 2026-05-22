@@ -1,6 +1,6 @@
 import { describe, expect, test, jest } from "@jest/globals"
 import { RockPaperScissorsGame } from "./RockPaperScissorsGame.js"
-import { RockPaperScissorsMove } from "../rock-paper-scissors/RockPaperScissorsMove.js"
+import { RockPaperScissorsMove } from "../../../domain/rock-paper-scissors/RockPaperScissorsMove.js"
 
 let chooseMock: ReturnType<typeof jest.fn>
 let game: RockPaperScissorsGame
