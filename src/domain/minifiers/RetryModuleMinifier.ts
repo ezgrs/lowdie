@@ -1,12 +1,8 @@
-import { Minifier } from "@/application/use-cases/modules/minified.js"
-import {
-    isRetryModuleEvent,
-    newRetryModuleEvent,
-    RetryModuleEvent,
-} from "@/application/use-cases/modules/retry/Event.js"
-import { RetryModuleState } from "@/application/use-cases/modules/retry/State.js"
-import { State } from "@/domain/entities/State.js"
-import { Event } from "@/domain/entities/Event.js"
+import { RetryModuleEvent, isRetryModuleEvent, newRetryModuleEvent } from "../events/RetryModuleEvent.js"
+import { RetryModuleState } from "../states/RetryModuleState.js"
+import { State } from "../states/State.js"
+import { Event } from "../events/Event.js"
+import { Minifier } from "./Minifier.js"
 
 type MinifiedRetryModuleEvent = "retry_p" | "retry_c"
 
