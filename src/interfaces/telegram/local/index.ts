@@ -1,11 +1,11 @@
-import { PseudoRandomizer } from "@/infrastructure/services/randomizer/pseudo.js"
+import { PseudoRandomizer } from "@/infrastructure/services/randomizers/pseudo.js"
 import dotenv from "dotenv"
-import { runModuleLoop, botSpecOf } from "@/interfaces/common/runner.js"
+import { botSpecOf } from "@/interfaces/common/specs.js"
 import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoardPresenter.js"
 import { telegrafOf } from "@/interfaces/telegram/telegraf.js"
-import { TelegramInteractionChannel } from "@/infrastructure/services/interaction-channel/telegram.js"
-import { MemoryBasedAgent } from "@/infrastructure/services/agent/memory.js"
-import { InteractionChannelBasedAgent } from "@/infrastructure/services/agent/interaction-channel.js"
+import { TelegramChat } from "@/infrastructure/services/chats/telegram.js"
+import { MemoryInbox } from "@/application/use-cases/inboxes/MemoryInbox.js"
+import { runModuleLoop } from "@/application/use-cases/runner.js"
 
 async function main() {
     dotenv.config()
@@ -14,26 +14,21 @@ async function main() {
 
     const [telegraf, bot] = telegrafOf({
         token: process.env["TELEGRAM_BOT_TOKEN"]!,
-        createAgent: (telegram) =>
-            new MemoryBasedAgent({
-                onAgent: (chatId) =>
-                    new InteractionChannelBasedAgent({
-                        channel: new TelegramInteractionChannel(
-                            telegram,
-                            chatId,
-                        ),
-                        run: async (channel) => {
-                            await runModuleLoop({
-                                spec: botSpecOf(
-                                    new PseudoRandomizer(),
-                                    new TicTacToeAsciiBoardPresenter(),
-                                ),
-                                channel: channel,
-                                signal: abortController.signal,
-                                sessionTtlMs: 600_000, // 10 minutes
-                            })
-                        },
-                    }),
+        createInbox: (telegram) =>
+            new MemoryInbox((chatId) => {
+                const chat = new TelegramChat(telegram, chatId)
+                runModuleLoop({
+                    spec: botSpecOf(
+                        new PseudoRandomizer(),
+                        new TicTacToeAsciiBoardPresenter(),
+                    ),
+                    chat: chat,
+                    options: {
+                        signal: abortController.signal,
+                        sessionTtlMs: 600000, // 10 minutes
+                    },
+                })
+                return chat
             }),
     })
     for (const reason of ["SIGINT", "SIGTERM"]) {

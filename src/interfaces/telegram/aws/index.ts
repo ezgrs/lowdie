@@ -1,25 +1,24 @@
 import { APIGatewayProxyHandlerV2 } from "aws-lambda"
 import { StatusCodes } from "http-status-codes"
 import { telegrafOf } from "@/interfaces/telegram/telegraf.js"
-import { botSpecOf } from "@/interfaces/common/runner.js"
-import { PseudoRandomizer } from "@/infrastructure/services/randomizer/pseudo.js"
+import { botSpecOf } from "@/interfaces/common/specs.js"
+import { PseudoRandomizer } from "@/infrastructure/services/randomizers/pseudo.js"
 import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoardPresenter.js"
-import { DynamoBotStateDatabase } from "./database.js"
+import { DynamoDBBotStateDatabase } from "../../../infrastructure/services/bot-state-databases/dynamodb.js"
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
-import { TelegramInteractionChannel } from "@/infrastructure/services/interaction-channel/telegram.js"
-import { DatabaseBasedAgent } from "@/infrastructure/services/agent/database.js"
+import { TelegramChat } from "@/infrastructure/services/chats/telegram.js"
+import { DatabaseInbox } from "@/application/use-cases/inboxes/DatabaseInbox.js"
 
 const [telegraf] = telegrafOf({
     token: process.env["TELEGRAM_BOT_TOKEN"]!,
-    createAgent: (telegram) =>
-        new DatabaseBasedAgent({
-            onChannel: (chatId) =>
-                new TelegramInteractionChannel(telegram, chatId),
+    createInbox: (telegram) =>
+        new DatabaseInbox({
+            onChat: (chatId) => new TelegramChat(telegram, chatId),
             spec: botSpecOf(
                 new PseudoRandomizer(),
                 new TicTacToeAsciiBoardPresenter(),
             ),
-            database: new DynamoBotStateDatabase(new DynamoDBClient()),
+            database: new DynamoDBBotStateDatabase(new DynamoDBClient()),
         }),
 })
 

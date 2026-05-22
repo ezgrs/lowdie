@@ -1,27 +1,27 @@
-import { Agent } from "@/application/ports/Agent.js"
+import { Inbox } from "@/application/use-cases/inboxes/Inbox.js"
 import { Context, Telegraf, Telegram } from "telegraf"
 import { message } from "telegraf/filters"
 
 type Args = {
     token: string
-    createAgent: (telegram: Telegram) => Agent
+    createInbox: (telegram: Telegram) => Inbox
 }
 
-export function telegrafOf(args: Args): [Telegraf<Context>, Agent] {
+export function telegrafOf(args: Args): [Telegraf<Context>, Inbox] {
     const telegraf = new Telegraf(args.token)
-    const agent = args.createAgent(telegraf.telegram)
+    const inbox = args.createInbox(telegraf.telegram)
     telegraf.start(async (ctx) => {
-        await agent.started(ctx.chat.id)
+        await inbox.started(ctx.chat.id)
     })
     telegraf.on(message("text"), async (ctx) => {
-        await agent.texted(ctx.chat.id, ctx.message.text)
+        await inbox.texted(ctx.chat.id, ctx.message.text)
     })
     telegraf.on("callback_query", async (ctx) => {
         const data =
             "data" in ctx.callbackQuery ? ctx.callbackQuery.data : undefined
         if (data == null) return
-        await agent.answered(ctx.chat!.id, data)
+        await inbox.answered(ctx.chat!.id, data)
         await ctx.answerCbQuery()
     })
-    return [telegraf, agent]
+    return [telegraf, inbox]
 }
