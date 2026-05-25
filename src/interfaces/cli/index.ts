@@ -10,8 +10,11 @@ async function main() {
             new PseudoRandomizer(),
             new TicTacToeAsciiBoardPresenter(),
         ),
-        chat: new ConsoleChat(process.stdin, process.stdout),
-        options: undefined,
+        chat: new ConsoleChat({
+            input: process.stdin,
+            output: process.stdout,
+            signal: undefined,
+        }),
     })
 }
 

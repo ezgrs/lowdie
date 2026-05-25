@@ -227,7 +227,7 @@ describe("getAction", () => {
                 choices: [{ type: "moveA" }, { type: "moveB" }],
             })
 
-            const result = retryModule.getAction({
+            const result = retryModule.getPrompt({
                 type: "active",
                 wrapped: {
                     type: "playing",
@@ -265,7 +265,7 @@ describe("getAction", () => {
                 }),
             })
 
-            const result = retryModule.getAction({
+            const result = retryModule.getPrompt({
                 type: "active",
                 wrapped: {
                     type: "playing",
@@ -291,7 +291,7 @@ describe("getAction", () => {
 
     describe("when state is waiting", () => {
         test("should return proceed and cancel actions", () => {
-            const result = retryModule.getAction({
+            const result = retryModule.getPrompt({
                 type: "waiting",
                 wrapped: {
                     type: "done",

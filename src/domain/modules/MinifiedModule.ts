@@ -1,8 +1,8 @@
 import { Event } from "@/domain/events/Event.js"
-import { Action } from "@/domain/Action.js"
 import { Minifier } from "../minifiers/Minifier.js"
 import { NonFinalState, State } from "../states/State.js"
 import { Module } from "./Module.js"
+import { Prompt } from "@/application/ports/Prompt.js"
 
 type Args<S extends State, E extends Event, ME> = {
     module: Module<S, E>
@@ -31,13 +31,13 @@ export class MinifiedModule<
         return this.module.applyEvent(state, event)
     }
 
-    getAction(state: NonFinalState<S>): Action<ME> {
-        const action = this.module.getAction(state)
-        switch (action.type) {
+    getPrompt(state: NonFinalState<S>): Prompt<ME> {
+        const prompt = this.module.getPrompt(state)
+        switch (prompt.type) {
             case "select":
                 return {
                     type: "select",
-                    choices: action.choices.map((event) =>
+                    choices: prompt.choices.map((event) =>
                         this.minifier.encode(state, event),
                     ),
                 }
@@ -45,7 +45,7 @@ export class MinifiedModule<
                 return {
                     type: "input",
                     parser: (input) => {
-                        const event = action.parser(input)
+                        const event = prompt.parser(input)
                         if (event == null) return null
                         return this.minifier.encode(state, event)
                     },

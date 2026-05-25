@@ -1,4 +1,3 @@
-import { Action } from "@/domain/Action.js"
 import { Randomizer } from "@/application/ports/Randomizer.js"
 import { TicTacToeGameState } from "@/domain/states/TicTacToeGameState.js"
 import { TicTacToeGameEvent } from "@/domain/events/TicTacToeGameEvent.js"
@@ -12,6 +11,7 @@ import { strategyFromDifficulty } from "../tic-tac-toe/strategy.js"
 import { TicTacToeBoard } from "../TicTacToeBoard.js"
 import { Game } from "@/domain/modules/Game.js"
 import { GameResult } from "@/domain/GameResult.js"
+import { Prompt } from "@/application/ports/Prompt.js"
 
 type Args = {
     randomizer: Randomizer
@@ -188,9 +188,9 @@ export class TicTacToeGame implements Game<
         }
     }
 
-    getAction(
+    getPrompt(
         state: NonFinalState<TicTacToeGameState>,
-    ): Action<TicTacToeGameEvent> {
+    ): Prompt<TicTacToeGameEvent> {
         switch (state.type) {
             case "settingUp":
                 switch (state.property) {

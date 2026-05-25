@@ -6,19 +6,20 @@ import { PseudoRandomizer } from "@/infrastructure/services/randomizers/pseudo.j
 import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoardPresenter.js"
 import { DynamoDBChatDatabase } from "../../../infrastructure/services/chat-databases/dynamodb.js"
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
-import { TelegramChat } from "@/infrastructure/services/chats/telegram.js"
 import { DatabaseInbox } from "@/application/use-cases/inboxes/DatabaseInbox.js"
+import { BotState } from "@/domain/states/BotState.js"
+
+const spec = botSpecOf(
+    new PseudoRandomizer(),
+    new TicTacToeAsciiBoardPresenter(),
+)
 
 const [telegraf] = telegrafOf({
     token: process.env["TELEGRAM_BOT_TOKEN"]!,
     createInbox: (telegram) =>
         new DatabaseInbox({
-            onChat: (chatId) => new TelegramChat(telegram, chatId),
-            spec: botSpecOf(
-                new PseudoRandomizer(),
-                new TicTacToeAsciiBoardPresenter(),
-            ),
-            database: new DynamoDBChatDatabase(new DynamoDBClient()),
+            module: spec.module,
+            database: new DynamoDBChatDatabase<BotState>(new DynamoDBClient()),
         }),
 })
 

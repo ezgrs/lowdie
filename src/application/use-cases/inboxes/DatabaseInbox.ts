@@ -1,52 +1,29 @@
 import { isNonFinal } from "@/domain/states/helpers.js"
-import { Event } from "@/domain/events/Event.js"
 import { Inbox } from "@/application/use-cases/inboxes/Inbox.js"
-import { BotEvent } from "@/domain/events/BotEvent.js"
-import { BotState } from "@/domain/states/BotState.js"
 import { ChatDatabase } from "@/application/ports/ChatDatabase.js"
-import { executeAction, ModuleSpec } from "../runner.js"
-import { Chat } from "@/application/ports/Chat.js"
+import { Module } from "@/domain/modules/Module.js"
+import { State } from "@/domain/states/State.js"
 
-type Args = {
-    database: ChatDatabase<BotState>
-    spec: ModuleSpec<BotState, BotEvent<Event>>
-    onChat: (chatId: number) => Chat
+type Args<S extends State, E> = {
+    database: ChatDatabase<S>
+    module: Module<S, E>
 }
 
-export class DatabaseInbox implements Inbox {
-    private readonly database: ChatDatabase<BotState>
-    private readonly spec: ModuleSpec<BotState, BotEvent<Event>>
-    private readonly onChat: (chatId: number) => Chat
+export class DatabaseInbox<S extends State, E> implements Inbox<string> {
+    private readonly database: ChatDatabase<S>
+    private readonly module: Module<S, E>
 
-    constructor(args: Args) {
+    constructor(args: Args<S, E>) {
         this.database = args.database
-        this.spec = args.spec
-        this.onChat = args.onChat
+        this.module = args.module
     }
 
-    private async processState(chatId: number, state: BotState) {
-        const chat = this.onChat(chatId)
-
+    private async processState(chatId: number, state: S) {
         await this.database.set(chatId, state)
-
-        const messages = this.spec.renderer.messagesOf(state)
-        for (const message of messages.slice(0, -1)) {
-            await chat.send(message)
-        }
-
-        if (isNonFinal(state)) {
-            await executeAction({
-                spec: this.spec,
-                state,
-                chat,
-                prompt: messages[messages.length - 1],
-                options: undefined,
-            })
-        }
     }
 
     async started(chatId: number): Promise<void> {
-        await this.processState(chatId, this.spec.module.getInitialState())
+        await this.processState(chatId, this.module.getInitialState())
     }
 
     async texted(chatId: number, text: string): Promise<void> {
@@ -56,7 +33,7 @@ export class DatabaseInbox implements Inbox {
             return await this.started(chatId)
         }
         if (isNonFinal(state)) {
-            const action = this.spec.module.getAction(state)
+            const action = this.module.getPrompt(state)
             switch (action.type) {
                 case "input":
                     const event = action.parser(text)
@@ -66,7 +43,7 @@ export class DatabaseInbox implements Inbox {
                     }
                     return await this.processState(
                         chatId,
-                        this.spec.module.applyEvent(state, event),
+                        this.module.applyEvent(state, event),
                     )
 
                 default:
@@ -84,10 +61,10 @@ export class DatabaseInbox implements Inbox {
         }
 
         if (isNonFinal(state)) {
-            const action = this.spec.module.getAction(state)
-            switch (action.type) {
+            const prompt = this.module.getPrompt(state)
+            switch (prompt.type) {
                 case "select":
-                    let event: BotEvent<Event>
+                    let event: E
                     try {
                         event = JSON.parse(data)
                     } catch (e) {
@@ -96,7 +73,7 @@ export class DatabaseInbox implements Inbox {
                     }
                     return await this.processState(
                         chatId,
-                        this.spec.module.applyEvent(state, event),
+                        this.module.applyEvent(state, event),
                     )
                 default:
                     console.log("answered: expected a select action")
@@ -105,5 +82,5 @@ export class DatabaseInbox implements Inbox {
         }
     }
 
-    async disposed(_: string): Promise<void> {}
+    async disposed(): Promise<void> {}
 }

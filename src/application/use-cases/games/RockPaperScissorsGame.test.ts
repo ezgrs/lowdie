@@ -81,7 +81,7 @@ describe("getAction", () => {
                     botMove: botMove as RockPaperScissorsMove,
                 } as const
 
-                const result = game.getAction(state)
+                const result = game.getPrompt(state)
 
                 expect(result).toEqual({
                     type: "select",

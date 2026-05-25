@@ -1,16 +1,24 @@
 import { Context } from "@inquirer/type"
 import { input, select } from "@inquirer/prompts"
-import {
-    Chat,
-    InteractionChoice,
-    InteractionOptions,
-} from "@/application/ports/Chat.js"
+import { RenderedPrompt } from "@/application/ports/Prompt.js"
+import { Chat, PromptOutput } from "@/application/ports/Chat.js"
+
+type Args = {
+    input: NodeJS.ReadableStream
+    output: NodeJS.WritableStream
+    signal?: AbortSignal | undefined
+}
 
 export class ConsoleChat implements Chat {
-    constructor(
-        private input: NodeJS.ReadableStream,
-        private output: NodeJS.WritableStream,
-    ) {}
+    private readonly input: NodeJS.ReadableStream
+    private readonly output: NodeJS.WritableStream
+    private readonly signal: AbortSignal | undefined
+
+    constructor(args: Args) {
+        this.input = args.input
+        this.output = args.output
+        this.signal = args.signal
+    }
 
     async send(message: string): Promise<void> {
         return new Promise((resolve, reject) => {
@@ -24,44 +32,40 @@ export class ConsoleChat implements Chat {
         })
     }
 
-    async askText(
+    async ask<E>(
+        prompt: RenderedPrompt<E>,
         message: string,
-        options?: InteractionOptions,
-    ): Promise<string> {
-        const signal = options?.signal
+    ): Promise<PromptOutput<E>> {
+        const signal = this.signal
         const context: Context = { input: this.input, output: this.output }
         if (signal != null) {
             context.signal = signal
         }
 
-        return await input(
-            {
-                message: message,
-            },
-            context,
-        )
-    }
-
-    async askChoices<T>(
-        message: string,
-        choices: InteractionChoice<T>[],
-        options?: InteractionOptions,
-    ): Promise<T> {
-        const signal = options?.signal
-        const context: Context = { input: this.input, output: this.output }
-        if (signal != null) {
-            context.signal = signal
+        let event: E | null
+        switch (prompt.type) {
+            case "input":
+                event = await input(
+                    {
+                        message: message,
+                    },
+                    context,
+                ).then(prompt.parser)
+                break
+            case "select":
+                event = await select(
+                    {
+                        message: message,
+                        choices: prompt.choices.map((event, index) => ({
+                            value: event,
+                            name: prompt.labels[index]!,
+                        })),
+                    },
+                    context,
+                )
+                break
         }
-
-        return await select(
-            {
-                message: message,
-                choices: choices.map((choice) => ({
-                    value: choice.value,
-                    name: choice.label,
-                })),
-            },
-            context,
-        )
+        if (event == null) return { type: "invalid" }
+        return { type: "proceed", value: event }
     }
 }

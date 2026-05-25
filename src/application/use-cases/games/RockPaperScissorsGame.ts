@@ -1,5 +1,4 @@
 import { Randomizer } from "@/application/ports/Randomizer.js"
-import { Action } from "@/domain/Action.js"
 import { RockPaperScissorsGameEvent } from "@/domain/events/RockPaperScissorsGameEvent.js"
 import { RockPaperScissorsGameState } from "@/domain/states/RockPaperScissorsGameState.js"
 import { FinalState, NonFinalState } from "../../../domain/states/State.js"
@@ -7,6 +6,7 @@ import { RockPaperScissorsMove } from "../../../domain/rock-paper-scissors/RockP
 import { Game } from "@/domain/modules/Game.js"
 import { GameResult } from "@/domain/GameResult.js"
 import { evaluateGame } from "@/domain/rock-paper-scissors/rules.js"
+import { Prompt, SelectPrompt } from "@/application/ports/Prompt.js"
 
 type Args = {
     randomizer: Randomizer
@@ -54,9 +54,9 @@ export class RockPaperScissorsGame implements Game<
         }
     }
 
-    getAction(
+    getPrompt(
         state: NonFinalState<RockPaperScissorsGameState>,
-    ): Action<RockPaperScissorsGameEvent> {
+    ): Prompt<RockPaperScissorsGameEvent> {
         switch (state.type) {
             case "waitingForUser":
                 return {

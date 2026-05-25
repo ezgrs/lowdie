@@ -1,11 +1,11 @@
 import { Event } from "@/domain/events/Event.js"
 import { isFinal, isNonFinal } from "@/domain/states/helpers.js"
-import { Action } from "@/domain/Action.js"
 import { BotEvent, isBotEvent, newBotEvent } from "@/domain/events/BotEvent.js"
 import { BotState } from "@/domain/states/BotState.js"
 import { UnexpectedModuleFlow } from "../errors/UnexpectedModuleFlowError.js"
 import { State, NonFinalState } from "../states/State.js"
 import { Module } from "./Module.js"
+import { Prompt } from "@/application/ports/Prompt.js"
 
 export class BotModule implements Module<BotState, BotEvent<Event>> {
     constructor(private modules: Module<State, Event>[]) {}
@@ -59,7 +59,7 @@ export class BotModule implements Module<BotState, BotEvent<Event>> {
         }
     }
 
-    getAction(state: NonFinalState<BotState>): Action<BotEvent<Event>> {
+    getPrompt(state: NonFinalState<BotState>): Prompt<BotEvent<Event>> {
         switch (state.type) {
             case "waiting":
                 return {
@@ -73,7 +73,7 @@ export class BotModule implements Module<BotState, BotEvent<Event>> {
                 }
             case "active":
                 const module = this.modules[state.index]!
-                return module.getAction(state.wrapped)
+                return module.getPrompt(state.wrapped)
         }
     }
 }

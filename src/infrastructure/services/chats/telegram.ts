@@ -1,8 +1,5 @@
-import {
-    Chat,
-    InteractionChoice,
-    InteractionOptions,
-} from "@/application/ports/Chat.js"
+import { Chat, PromptOutput } from "@/application/ports/Chat.js"
+import { RenderedPrompt } from "@/application/ports/Prompt.js"
 import { Markup, Telegram } from "telegraf"
 
 export class TelegramChat implements Chat {
@@ -16,26 +13,29 @@ export class TelegramChat implements Chat {
         await this.telegram.sendMessage(this.chatId, message)
     }
 
-    async askText(message: string, _?: InteractionOptions): Promise<string> {
-        await this.send(message)
-        return null as unknown as string
-    }
-
-    async askChoices<T>(
+    async ask<E>(
+        prompt: RenderedPrompt<E>,
         message: string,
-        choices: InteractionChoice<T>[],
-        _?: InteractionOptions,
-    ): Promise<T> {
-        const buttons = choices.map((choice) => {
-            const data = JSON.stringify(choice.value)
-            console.log(`sending BUTTON_DATA: ${data}`)
-            return [Markup.button.callback(choice.label, data)]
-        })
-        await this.telegram.sendMessage(
-            this.chatId,
-            message,
-            Markup.inlineKeyboard(buttons),
-        )
-        return null as unknown as T
+    ): Promise<PromptOutput<E>> {
+        switch (prompt.type) {
+            case "input":
+                await this.send(message)
+                break
+            case "select":
+                const buttons = prompt.choices.map((choice, index) => {
+                    return [
+                        Markup.button.callback(
+                            prompt.labels[index]!,
+                            JSON.stringify(choice),
+                        ),
+                    ]
+                })
+                await this.telegram.sendMessage(
+                    this.chatId,
+                    message,
+                    Markup.inlineKeyboard(buttons),
+                )
+        }
+        return { type: "done" }
     }
 }

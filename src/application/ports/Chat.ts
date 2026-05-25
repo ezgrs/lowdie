@@ -1,24 +1,16 @@
+import { RenderedPrompt } from "./Prompt.js"
+
 export type InteractionChoice<T> = {
     value: T
     label: string
 }
 
-export type InteractionOptions = {
-    signal?: AbortSignal | undefined
-    sessionTtlMs?: number | undefined
-}
+export type PromptOutput<E> =
+    | { type: "done" }
+    | { type: "invalid" }
+    | { type: "proceed"; value: E }
 
-export interface Chat {
+export interface Chat<E> {
     send(message: string): Promise<void>
-
-    askText(
-        message: string,
-        options: InteractionOptions | undefined,
-    ): Promise<string>
-
-    askChoices<T>(
-        message: string,
-        choices: InteractionChoice<T>[],
-        options: InteractionOptions | undefined,
-    ): Promise<T>
+    ask(prompt: RenderedPrompt<E>, message: string): Promise<PromptOutput<E>>
 }

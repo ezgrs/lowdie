@@ -5,30 +5,37 @@ import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoard
 import { telegrafOf } from "@/interfaces/telegram/telegraf.js"
 import { TelegramChat } from "@/infrastructure/services/chats/telegram.js"
 import { MemoryInbox } from "@/application/use-cases/inboxes/MemoryInbox.js"
-import { runModuleLoop } from "@/application/use-cases/runner.js"
+import { TimeExpiringChat } from "@/application/use-cases/chats/TimeExpiringChat.js"
+import { Chat } from "@/application/ports/Chat.js"
+import { SignalCancellabelChat } from "@/application/use-cases/chats/SignalCancellableChat.js"
+import { BotEvent } from "@/domain/events/BotEvent.js"
 
 async function main() {
     dotenv.config()
 
     const abortController = new AbortController()
 
+    const spec = botSpecOf(
+        new PseudoRandomizer(),
+        new TicTacToeAsciiBoardPresenter(),
+    )
     const [telegraf, bot] = telegrafOf({
         token: process.env["TELEGRAM_BOT_TOKEN"]!,
         createInbox: (telegram) =>
-            new MemoryInbox((chatId) => {
-                const chat = new TelegramChat(telegram, chatId)
-                runModuleLoop({
-                    spec: botSpecOf(
-                        new PseudoRandomizer(),
-                        new TicTacToeAsciiBoardPresenter(),
-                    ),
-                    chat: chat,
-                    options: {
-                        signal: abortController.signal,
-                        sessionTtlMs: 600000, // 10 minutes
-                    },
-                })
-                return chat
+            new MemoryInbox({
+                module: spec.module,
+                onChat(chatId) {
+                    let chat: Chat<BotEvent<Event>> = new TelegramChat(
+                        telegram,
+                        chatId,
+                    )
+                    chat = new TimeExpiringChat(chat, 60_000) // 10 minutes
+                    chat = new SignalCancellabelChat(
+                        chat,
+                        abortController.signal,
+                    )
+                    return chat
+                },
             }),
     })
     for (const reason of ["SIGINT", "SIGTERM"]) {

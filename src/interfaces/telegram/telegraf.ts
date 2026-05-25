@@ -2,12 +2,14 @@ import { Inbox } from "@/application/use-cases/inboxes/Inbox.js"
 import { Context, Telegraf, Telegram } from "telegraf"
 import { message } from "telegraf/filters"
 
-type Args = {
+type Args<E> = {
     token: string
-    createInbox: (telegram: Telegram) => Inbox
+    createInbox: (telegram: Telegram) => Inbox<E>
 }
 
-export function telegrafOf(args: Args): [Telegraf<Context>, Inbox] {
+export function telegrafOf(
+    args: Args<string>,
+): [Telegraf<Context>, Inbox<string>] {
     const telegraf = new Telegraf(args.token)
     const inbox = args.createInbox(telegraf.telegram)
     telegraf.start(async (ctx) => {

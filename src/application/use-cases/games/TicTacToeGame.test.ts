@@ -69,7 +69,7 @@ describe("getAction", () => {
                     describe("when getAction is called", () => {
                         let action: Action<TicTacToeGameEvent>
                         beforeAll(() => {
-                            action = game.getAction({
+                            action = game.getPrompt({
                                 type: "playing",
                                 board: board,
                                 strategy: strategy,
@@ -124,7 +124,7 @@ describe("getAction", () => {
                     "given initial playerSymbol is %s",
                     (initialPlayerSymbol) => {
                         test("when property is undefined, then it should return general setup choices", () => {
-                            const action = game.getAction({
+                            const action = game.getPrompt({
                                 type: "settingUp",
                                 difficulty: initialDifficulty,
                                 playerSymbol: initialPlayerSymbol,
@@ -148,7 +148,7 @@ describe("getAction", () => {
                             })
                         })
                         test("when property is difficulty, then it should return respective setup choices", () => {
-                            const action = game.getAction({
+                            const action = game.getPrompt({
                                 type: "settingUp",
                                 difficulty: initialDifficulty,
                                 playerSymbol: initialPlayerSymbol,
@@ -181,7 +181,7 @@ describe("getAction", () => {
                             })
                         })
                         test("when property is playerSymbol, then it should return respective setup choices", () => {
-                            const action = game.getAction({
+                            const action = game.getPrompt({
                                 type: "settingUp",
                                 difficulty: initialDifficulty,
                                 playerSymbol: initialPlayerSymbol,

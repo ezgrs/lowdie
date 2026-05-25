@@ -1,6 +1,5 @@
 import { Module } from "@/domain/modules/Module.js"
 import { isFinal, isNonFinal } from "@/domain/states/helpers.js"
-import { Action } from "@/domain/Action.js"
 import { Event } from "@/domain/events/Event.js"
 import {
     RetryModuleEvent,
@@ -11,6 +10,7 @@ import { RetryModuleState } from "@/domain/states/RetryModuleState.js"
 import { NonFinalState, State } from "../states/State.js"
 import { UnexpectedModuleFlow } from "../errors/UnexpectedModuleFlowError.js"
 import { Game } from "./Game.js"
+import { Prompt } from "@/application/ports/Prompt.js"
 
 export class RetryModule<S extends State, E extends Event> implements Module<
     RetryModuleState<S>,
@@ -76,12 +76,12 @@ export class RetryModule<S extends State, E extends Event> implements Module<
         throw new Error()
     }
 
-    getAction(
+    getPrompt(
         state: NonFinalState<RetryModuleState<S>>,
-    ): Action<RetryModuleEvent<E>> {
+    ): Prompt<RetryModuleEvent<E>> {
         switch (state.type) {
             case "active":
-                return this.game.getAction(state.wrapped)
+                return this.game.getPrompt(state.wrapped)
             case "waiting":
                 return {
                     type: "select",
