@@ -9,7 +9,7 @@ type Args = {
     signal?: AbortSignal | undefined
 }
 
-export class ConsoleChat implements Chat {
+export class ConsoleChat<E> implements Chat<E> {
     private readonly input: NodeJS.ReadableStream
     private readonly output: NodeJS.WritableStream
     private readonly signal: AbortSignal | undefined
@@ -32,7 +32,7 @@ export class ConsoleChat implements Chat {
         })
     }
 
-    async ask<E>(
+    async ask(
         prompt: RenderedPrompt<E>,
         message: string,
     ): Promise<PromptOutput<E>> {
@@ -53,7 +53,7 @@ export class ConsoleChat implements Chat {
                 ).then(prompt.parser)
                 break
             case "select":
-                event = await select(
+                event = await select<E>(
                     {
                         message: message,
                         choices: prompt.choices.map((event, index) => ({

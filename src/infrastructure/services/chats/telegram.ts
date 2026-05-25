@@ -2,7 +2,7 @@ import { Chat, PromptOutput } from "@/application/ports/Chat.js"
 import { RenderedPrompt } from "@/application/ports/Prompt.js"
 import { Markup, Telegram } from "telegraf"
 
-export class TelegramChat implements Chat {
+export class TelegramChat<E> implements Chat<E> {
     constructor(
         private readonly telegram: Telegram,
         private readonly chatId: number,
@@ -13,7 +13,7 @@ export class TelegramChat implements Chat {
         await this.telegram.sendMessage(this.chatId, message)
     }
 
-    async ask<E>(
+    async ask(
         prompt: RenderedPrompt<E>,
         message: string,
     ): Promise<PromptOutput<E>> {
