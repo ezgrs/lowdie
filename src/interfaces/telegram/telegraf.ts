@@ -1,29 +1,36 @@
-import { Inbox } from "@/application/use-cases/inboxes/Inbox.js"
+import { Inbox } from "@/application/ports/Inbox.js"
 import { Context, Telegraf, Telegram } from "telegraf"
 import { message } from "telegraf/filters"
 
 type Args<E> = {
     token: string
-    createInbox: (telegram: Telegram) => Inbox<E>
+    create: (telegram: Telegram, chatId: number) => Inbox<E>
 }
 
 export function telegrafOf(
     args: Args<string>,
-): [Telegraf<Context>, Inbox<string>] {
+): Telegraf<Context> {
     const telegraf = new Telegraf(args.token)
-    const inbox = args.createInbox(telegraf.telegram)
+    const inboxes: Map<number, Inbox<string>> = new Map()
     telegraf.start(async (ctx) => {
-        await inbox.started(ctx.chat.id)
+        const inbox = args.create(telegraf.telegram, ctx.chat.id)
+        await inbox.started()
     })
     telegraf.on(message("text"), async (ctx) => {
-        await inbox.texted(ctx.chat.id, ctx.message.text)
+        const inbox = inboxes.get(ctx.chat.id)
+        if (inbox == null) return
+        await inbox.texted(ctx.message.text)
     })
     telegraf.on("callback_query", async (ctx) => {
+        const inbox = inboxes.get(ctx.chat!.id)
+        if (inbox == null) return
+
         const data =
             "data" in ctx.callbackQuery ? ctx.callbackQuery.data : undefined
         if (data == null) return
-        await inbox.answered(ctx.chat!.id, data)
+
+        await inbox.answered(data)
         await ctx.answerCbQuery()
     })
-    return [telegraf, inbox]
+    return telegraf
 }

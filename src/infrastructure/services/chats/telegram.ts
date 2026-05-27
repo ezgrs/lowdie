@@ -1,4 +1,4 @@
-import { Chat, PromptOutput } from "@/application/ports/Chat.js"
+import { Chat } from "@/application/ports/Chat.js"
 import { RenderedPrompt } from "@/application/ports/Prompt.js"
 import { Markup, Telegram } from "telegraf"
 
@@ -16,7 +16,7 @@ export class TelegramChat<E> implements Chat<E> {
     async ask(
         prompt: RenderedPrompt<E>,
         message: string,
-    ): Promise<PromptOutput<E>> {
+    ): Promise<void> {
         switch (prompt.type) {
             case "input":
                 await this.send(message)
@@ -36,6 +36,5 @@ export class TelegramChat<E> implements Chat<E> {
                     Markup.inlineKeyboard(buttons),
                 )
         }
-        return { type: "done" }
     }
 }

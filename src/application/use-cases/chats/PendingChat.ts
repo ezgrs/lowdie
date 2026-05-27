@@ -1,5 +1,6 @@
-import { Chat, PromptOutput } from "@/application/ports/Chat.js"
+import { Chat } from "@/application/ports/Chat.js"
 import { Prompt, RenderedPrompt } from "@/application/ports/Prompt.js"
+import { Trigger } from "@/application/ports/Trigger.js"
 import { Completer, createCompleter } from "@/common/Completer.js"
 
 type Pending<E> = {
@@ -10,7 +11,10 @@ type Pending<E> = {
 export class PendingChat<E> implements Chat<E>, Completer<E> {
     private pending: Pending<any> | undefined
 
-    constructor(private readonly chat: Chat<E>) {}
+    constructor(
+        private readonly chat: Chat<E>,
+        private readonly trigger: Trigger<E | null>,
+    ) {}
 
     send(message: string): Promise<void> {
         return this.chat.send(message)
@@ -19,16 +23,13 @@ export class PendingChat<E> implements Chat<E>, Completer<E> {
     async ask(
         prompt: RenderedPrompt<E>,
         message: string,
-    ): Promise<PromptOutput<E>> {
+    ): Promise<void> {
         await this.chat.ask(prompt, message)
 
         const [completer, future] = createCompleter<E | null>()
         this.pending = { completer, prompt }
         const event = await future
-        if (event == null) {
-            return { type: "invalid" }
-        }
-        return { type: "proceed", value: event }
+        await this.trigger.do(event)
     }
 
     resolve(event: E): void {

@@ -4,7 +4,7 @@ import { telegrafOf } from "@/interfaces/telegram/telegraf.js"
 import { botSpecOf } from "@/interfaces/common/specs.js"
 import { PseudoRandomizer } from "@/infrastructure/services/randomizers/pseudo.js"
 import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoardPresenter.js"
-import { DynamoDBChatDatabase } from "../../../infrastructure/services/chat-databases/dynamodb.js"
+import { DynamoDBChatDatabase } from "../../../infrastructure/services/consumers/dynamodb.js"
 import { DynamoDBClient } from "@aws-sdk/client-dynamodb"
 import { DatabaseInbox } from "@/application/use-cases/inboxes/DatabaseInbox.js"
 import { BotState } from "@/domain/states/BotState.js"
@@ -14,9 +14,9 @@ const spec = botSpecOf(
     new TicTacToeAsciiBoardPresenter(),
 )
 
-const [telegraf] = telegrafOf({
+const telegraf = telegrafOf({
     token: process.env["TELEGRAM_BOT_TOKEN"]!,
-    createInbox: (telegram) =>
+    create: (telegram) =>
         new DatabaseInbox({
             module: spec.module,
             database: new DynamoDBChatDatabase<BotState>(new DynamoDBClient()),

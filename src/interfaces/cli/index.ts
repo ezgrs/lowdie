@@ -1,4 +1,3 @@
-import { runModuleLoop } from "@/application/use-cases/runner.js"
 import { ConsoleChat } from "@/infrastructure/services/chats/console.js"
 import { PseudoRandomizer } from "@/infrastructure/services/randomizers/pseudo.js"
 import { botSpecOf } from "@/interfaces/common/specs.js"

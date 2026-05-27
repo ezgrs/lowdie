@@ -5,12 +5,7 @@ export type InteractionChoice<T> = {
     label: string
 }
 
-export type PromptOutput<E> =
-    | { type: "done" }
-    | { type: "invalid" }
-    | { type: "proceed"; value: E }
-
 export interface Chat<E> {
     send(message: string): Promise<void>
-    ask(prompt: RenderedPrompt<E>, message: string): Promise<PromptOutput<E>>
+    ask(prompt: RenderedPrompt<E>, message: string): Promise<void>
 }
