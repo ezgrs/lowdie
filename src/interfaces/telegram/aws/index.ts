@@ -18,6 +18,7 @@ const spec = botSpecOf(
 const telegraf = telegrafOf({
     token: process.env["TELEGRAM_BOT_TOKEN"]!,
     module: spec.module,
+    minifier: spec.minifier,
     onConsumer: (telegram, chatId) =>
         new TransmittingConsumer({
             spec: spec,

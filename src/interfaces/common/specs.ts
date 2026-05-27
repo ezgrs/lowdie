@@ -13,6 +13,10 @@ import { RockPaperScissorsGameRenderer } from "../renderers/rock-paper-scissors.
 import { TicTacToeGameRenderer } from "../renderers/tic-tac-toe.js"
 import { TicTacToeBoardPresenter } from "./TicTacToeBoardPresenter.js"
 import { ModuleSpec } from "@/application/ports/ModuleSpec.js"
+import { RetryModuleMinifier } from "@/domain/minifiers/RetryModuleMinifier.js"
+import { RockPaperScissorsGameMinifier } from "@/domain/minifiers/RockPaperScissorsGameMinifier.js"
+import { TicTacToeGameMinifier } from "@/domain/minifiers/TicTacToeGameMinifier.js"
+import { BotMinifier } from "@/domain/minifiers/BotMinifier.js"
 
 export function botSpecOf(
     randomizer: Randomizer,
@@ -24,6 +28,9 @@ export function botSpecOf(
             renderer: new RetryModuleRenderer(
                 new RockPaperScissorsGameRenderer(),
             ),
+            minifier: new RetryModuleMinifier(
+                new RockPaperScissorsGameMinifier(),
+            ),
         },
         {
             module: new RetryModule(new TicTacToeGame({ randomizer })),
@@ -32,10 +39,12 @@ export function botSpecOf(
                     boardPresenter: ticTacToeBoardPresenter,
                 }),
             ),
+            minifier: new TicTacToeGameMinifier(),
         },
     ]
     return {
         module: new BotModule(specs.map((spec) => spec.module)),
         renderer: new BotRenderer(specs.map((spec) => spec.renderer)),
+        minifier: new BotMinifier(specs.map((spec) => spec.minifier)),
     }
 }
