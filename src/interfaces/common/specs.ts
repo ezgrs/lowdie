@@ -19,6 +19,7 @@ import { TicTacToeGameMinifier } from "@/domain/minifiers/TicTacToeGameMinifier.
 import { BotMinifier } from "@/domain/minifiers/BotMinifier.js"
 import { MinifiedModule } from "@/domain/modules/MinifiedModule.js"
 import { Minifier } from "@/domain/minifiers/Minifier.js"
+import { MinifiedRenderer } from "@/application/use-cases/renderers/MinifiedRenderer.js"
 
 type Args<B extends boolean> = {
     randomizer: Randomizer
@@ -44,7 +45,10 @@ export function createBotSpec<B extends boolean>(
                 module: spec.module,
                 minifier: spec.minifier,
             }),
-            renderer: spec.renderer,
+            renderer: new MinifiedRenderer({
+                renderer: spec.renderer,
+                minifier: spec.minifier,
+            }),
         }
     }
     return spec
