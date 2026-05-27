@@ -12,26 +12,25 @@ export function gameResultOf(
     matrix: TicTacToeMatrix,
     playerSymbol: TicTacToeSymbol,
 ): GameResult | null {
-    let emptyCount = 0
+    let hasEmptySpaces = false
     for (const axis of axesOf(matrix)) {
         const symbols = axis.locations.map((location) => location.symbol)
 
-        const pivotSymbol = symbols[0] ?? null
-        let filled = true
-        for (const symbol of symbols) {
-            if (symbol == null) {
-                ++emptyCount
-            }
-            if (symbol !== pivotSymbol) {
-                filled = false
-                break
-            }
+        if (!hasEmptySpaces) {
+            hasEmptySpaces = symbols.some((symbol) => symbol == null)
         }
-        if (!filled) continue
-        if (playerSymbol === pivotSymbol) return "win"
+
+        const winningSymbol = symbols.reduce((acc, symbol) => {
+            if (acc == null) return null
+            if (symbol == null) return null
+            if (acc !== symbol) return null
+            return symbol
+        })
+        if (winningSymbol == null) continue
+        if (playerSymbol === winningSymbol) return "win"
         return "lose"
     }
-    if (emptyCount === 0) return null
+    if (hasEmptySpaces) return null
     return "draw"
 }
 
