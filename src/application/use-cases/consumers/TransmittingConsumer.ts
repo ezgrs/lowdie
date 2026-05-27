@@ -1,28 +1,31 @@
-import { Chat } from "@/application/ports/Chat.js";
-import { Consumer } from "@/application/ports/Consumer.js";
-import { ModuleSpec } from "@/application/ports/ModuleSpec.js";
-import { RenderedPrompt } from "@/application/ports/Prompt.js";
-import { isNonFinal } from "@/domain/states/helpers.js";
-import { State } from "@/domain/states/State.js";
-import { Event } from "@/domain/events/Event.js";
+import { Transmitter } from "@/application/ports/Transmitter.js"
+import { Consumer } from "@/application/ports/Consumer.js"
+import { ModuleSpec } from "@/application/ports/ModuleSpec.js"
+import { RenderedPrompt } from "@/application/ports/Prompt.js"
+import { isNonFinal } from "@/domain/states/helpers.js"
+import { State } from "@/domain/states/State.js"
+import { Event } from "@/domain/events/Event.js"
 
 type Args<S extends State, E extends Event> = {
     spec: ModuleSpec<S, E>
     consumer: Consumer<S>
-    chat: Chat<E>
+    transmitter: Transmitter<E>
 }
 
-export class ChatConsumer<S extends State, E extends Event> implements Consumer<S> {
+export class TransmittingConsumer<
+    S extends State,
+    E extends Event,
+> implements Consumer<S> {
     private readonly spec: ModuleSpec<S, E>
     private readonly consumer: Consumer<S>
-    private readonly chat: Chat<E>
+    private readonly transmitter: Transmitter<E>
 
     constructor(args: Args<S, E>) {
         this.spec = args.spec
         this.consumer = args.consumer
-        this.chat = args.chat
+        this.transmitter = args.transmitter
     }
-    
+
     provide(): Promise<S> {
         return this.consumer.provide()
     }
@@ -32,7 +35,7 @@ export class ChatConsumer<S extends State, E extends Event> implements Consumer<
 
         const messages = this.spec.renderer.messagesOf(state)
         for (const message of messages.slice(0, -1)) {
-            await this.chat.send(message)
+            await this.transmitter.send(message)
         }
 
         if (isNonFinal(state)) {
@@ -52,12 +55,10 @@ export class ChatConsumer<S extends State, E extends Event> implements Consumer<
                 }
             })()
 
-            await this.chat.ask(
+            await this.transmitter.ask(
                 renderedPrompt,
                 messages[messages.length - 1]!,
             )
         }
     }
-        
-
 }

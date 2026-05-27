@@ -1,8 +1,8 @@
-import { Chat } from "@/application/ports/Chat.js"
+import { Transmitter } from "@/application/ports/Transmitter.js"
 import { RenderedPrompt } from "@/application/ports/Prompt.js"
 import { Markup, Telegram } from "telegraf"
 
-export class TelegramChat<E> implements Chat<E> {
+export class TelegramTransmitter<E> implements Transmitter<E> {
     constructor(
         private readonly telegram: Telegram,
         private readonly chatId: number,
@@ -13,10 +13,7 @@ export class TelegramChat<E> implements Chat<E> {
         await this.telegram.sendMessage(this.chatId, message)
     }
 
-    async ask(
-        prompt: RenderedPrompt<E>,
-        message: string,
-    ): Promise<void> {
+    async ask(prompt: RenderedPrompt<E>, message: string): Promise<void> {
         switch (prompt.type) {
             case "input":
                 await this.send(message)

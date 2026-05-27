@@ -6,7 +6,7 @@ import { RockPaperScissorsMove } from "../../../domain/rock-paper-scissors/RockP
 import { Game } from "@/domain/modules/Game.js"
 import { GameResult } from "@/domain/GameResult.js"
 import { evaluateGame } from "@/domain/rock-paper-scissors/rules.js"
-import { Prompt, SelectPrompt } from "@/application/ports/Prompt.js"
+import { Prompt } from "@/application/ports/Prompt.js"
 
 type Args = {
     randomizer: Randomizer

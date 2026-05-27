@@ -1,4 +1,3 @@
-import { Action } from "@/domain/Action.js"
 import { Randomizer } from "@/application/ports/Randomizer.js"
 import { describe, expect, test, jest } from "@jest/globals"
 import { TicTacToeGame } from "./TicTacToeGame.js"
@@ -10,6 +9,7 @@ import { EasyTicTacToeStrategy } from "../tic-tac-toe/strategies/EasyTicTacToeSt
 import { HardTicTacToeStrategy } from "../tic-tac-toe/strategies/HardTicTacToeStrategy.js"
 import { NormalTicTacToeStrategy } from "../tic-tac-toe/strategies/NormalTicTacToeStrategy.js"
 import { TicTacToeStrategy } from "../tic-tac-toe/strategies/TicTacToeStrategy.js"
+import { Prompt } from "@/application/ports/Prompt.js"
 
 let randomizer: jest.Mocked<Randomizer>
 let game: TicTacToeGame
@@ -67,9 +67,9 @@ describe("getAction", () => {
                         randomizer: randomizer,
                     })
                     describe("when getAction is called", () => {
-                        let action: Action<TicTacToeGameEvent>
+                        let prompt: Prompt<TicTacToeGameEvent>
                         beforeAll(() => {
-                            action = game.getPrompt({
+                            prompt = game.getPrompt({
                                 type: "playing",
                                 board: board,
                                 strategy: strategy,
@@ -77,13 +77,13 @@ describe("getAction", () => {
                             })
                         })
                         test("then it should return input action", () => {
-                            expect(action.type).toBe("input")
+                            expect(prompt.type).toBe("input")
                         })
                         test.each(["", "foo", "bar", "A0", "D1", "D0"])(
                             "then it should not parse invalid strings",
                             (text) => {
-                                if (action.type === "input") {
-                                    expect(action.parser(text)).toBe(null)
+                                if (prompt.type === "input") {
+                                    expect(prompt.parser(text)).toBe(null)
                                 } else {
                                     throw Error()
                                 }
@@ -100,8 +100,8 @@ describe("getAction", () => {
                         )(
                             "then it should parse valid strings with valid coordinates",
                             (obj) => {
-                                if (action.type === "input") {
-                                    expect(action.parser(obj.input)).toEqual({
+                                if (prompt.type === "input") {
+                                    expect(prompt.parser(obj.input)).toEqual({
                                         type: "userMarkedSymbol",
                                         row: obj.row,
                                         col: obj.col,

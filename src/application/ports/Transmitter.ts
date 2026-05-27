@@ -5,7 +5,7 @@ export type InteractionChoice<T> = {
     label: string
 }
 
-export interface Chat<E> {
+export interface Transmitter<E> {
     send(message: string): Promise<void>
     ask(prompt: RenderedPrompt<E>, message: string): Promise<void>
 }

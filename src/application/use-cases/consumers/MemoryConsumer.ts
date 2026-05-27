@@ -1,15 +1,13 @@
-import { Consumer } from "@/application/ports/Consumer.js";
-import { State } from "@/domain/states/State.js";
+import { Consumer } from "@/application/ports/Consumer.js"
 
-export class MemoryConsumer<S extends State> implements Consumer<S> {
-    private state: S | undefined
+export class MemoryConsumer<T> implements Consumer<T> {
+    constructor(private value: T) {}
 
-    async provide(): Promise<S> {
-        if (this.state == null) throw new Error("must call consume first")
-        return this.state
+    async provide(): Promise<T> {
+        return this.value
     }
 
-    async consume(state: S): Promise<void> {
-        this.state = state
+    async consume(value: T): Promise<void> {
+        this.value = value
     }
 }
