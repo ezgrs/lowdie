@@ -1,7 +1,7 @@
 import { APIGatewayProxyHandlerV2 } from "aws-lambda"
 import { StatusCodes } from "http-status-codes"
 import { telegrafOf } from "@/interfaces/telegram/telegraf.js"
-import { botSpecOf } from "@/interfaces/common/specs.js"
+import { createBotSpec } from "@/interfaces/common/specs.js"
 import { PseudoRandomizer } from "@/infrastructure/services/randomizers/pseudo.js"
 import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoardPresenter.js"
 import { DynamoDBChatDatabase } from "../../../infrastructure/services/consumers/dynamodb.js"
@@ -10,15 +10,15 @@ import { BotState } from "@/domain/states/BotState.js"
 import { TransmittingConsumer } from "@/application/use-cases/consumers/TransmittingConsumer.js"
 import { TelegramTransmitter } from "@/infrastructure/services/transmitters/telegram.js"
 
-const spec = botSpecOf(
-    new PseudoRandomizer(),
-    new TicTacToeAsciiBoardPresenter(),
-)
+const spec = createBotSpec({
+    randomizer: new PseudoRandomizer(),
+    ticTacToeBoardPresenter: new TicTacToeAsciiBoardPresenter(),
+    minified: true,
+})
 
 const telegraf = telegrafOf({
     token: process.env["TELEGRAM_BOT_TOKEN"]!,
     module: spec.module,
-    minifier: spec.minifier,
     onConsumer: (telegram, chatId) =>
         new TransmittingConsumer({
             spec: spec,

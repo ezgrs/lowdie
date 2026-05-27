@@ -1,6 +1,6 @@
 import { StreamTransmitter } from "@/infrastructure/services/transmitters/stream.js"
 import { PseudoRandomizer } from "@/infrastructure/services/randomizers/pseudo.js"
-import { botSpecOf } from "@/interfaces/common/specs.js"
+import { createBotSpec } from "@/interfaces/common/specs.js"
 import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoardPresenter.js"
 import { MemoryConsumer } from "@/application/use-cases/consumers/MemoryConsumer.js"
 import { InquirerRequester } from "@/infrastructure/services/requesters/inquirer.js"
@@ -12,10 +12,11 @@ import { Event } from "@/domain/events/Event.js"
 import { NonBlockingRequester } from "@/application/use-cases/requesters/NonBlockingRequester.js"
 
 async function main() {
-    const spec = botSpecOf(
-        new PseudoRandomizer(),
-        new TicTacToeAsciiBoardPresenter(),
-    )
+    const spec = createBotSpec({
+        randomizer: new PseudoRandomizer(),
+        ticTacToeBoardPresenter: new TicTacToeAsciiBoardPresenter(),
+        minified: false,
+    })
 
     const stream = new AsyncStream<BotEvent<Event>>()
     const consumer = new TransmittingConsumer({

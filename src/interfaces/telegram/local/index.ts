@@ -1,6 +1,6 @@
 import { PseudoRandomizer } from "@/infrastructure/services/randomizers/pseudo.js"
 import dotenv from "dotenv"
-import { botSpecOf } from "@/interfaces/common/specs.js"
+import { createBotSpec } from "@/interfaces/common/specs.js"
 import { TicTacToeAsciiBoardPresenter } from "@/interfaces/common/TicTacToeBoardPresenter.js"
 import { telegrafOf } from "@/interfaces/telegram/telegraf.js"
 import { TelegramTransmitter } from "@/infrastructure/services/transmitters/telegram.js"
@@ -14,16 +14,16 @@ async function main() {
 
     const abortController = new AbortController()
 
-    const spec = botSpecOf(
-        new PseudoRandomizer(),
-        new TicTacToeAsciiBoardPresenter(),
-    )
+    const spec = createBotSpec({
+        randomizer: new PseudoRandomizer(),
+        ticTacToeBoardPresenter: new TicTacToeAsciiBoardPresenter(),
+        minified: true,
+    })
     const consumers: Map<number, Consumer<BotState>> = new Map()
 
     const telegraf = telegrafOf({
         token: process.env["TELEGRAM_BOT_TOKEN"]!,
         module: spec.module,
-        minifier: spec.minifier,
         onConsumer: (telegram, chatId) => {
             let consumer = consumers.get(chatId)
             if (consumer == null) {
