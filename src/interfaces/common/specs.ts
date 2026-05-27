@@ -20,6 +20,11 @@ import { BotMinifier } from "@/domain/minifiers/BotMinifier.js"
 import { MinifiedModule } from "@/domain/modules/MinifiedModule.js"
 import { Minifier } from "@/domain/minifiers/Minifier.js"
 import { MinifiedRenderer } from "@/application/use-cases/renderers/MinifiedRenderer.js"
+import { RetryModuleState } from "@/domain/states/RetryModuleState.js"
+import { RetryModuleEvent } from "@/domain/events/RetryModuleEvent.js"
+import { Module } from "@/domain/modules/Module.js"
+import { Renderer } from "@/application/ports/Renderer.js"
+import { Game } from "@/domain/modules/Game.js"
 
 type Args<B extends boolean> = {
     randomizer: Randomizer
@@ -27,7 +32,9 @@ type Args<B extends boolean> = {
     minified: B
 }
 
-type Spec<S extends State, E extends Event, ME> = ModuleSpec<S, E> & {
+type Spec<M extends Module<S, E>, S extends State, E extends Event, ME> = {
+    module: M
+    renderer: Renderer<S, E>
     minifier: Minifier<S, E, ME>
 }
 
@@ -54,30 +61,35 @@ export function createBotSpec<B extends boolean>(
     return spec
 }
 
+function retrySpecOf<S extends State, E extends Event>(
+    spec: Spec<Game<S, E>, S, E, any>,
+): Spec<RetryModule<S, E>, RetryModuleState<S>, RetryModuleEvent<E>, any> {
+    return {
+        module: new RetryModule(spec.module),
+        renderer: new RetryModuleRenderer(spec.renderer),
+        minifier: new RetryModuleMinifier(spec.minifier),
+    }
+}
+
 function botSpecOf(
     randomizer: Randomizer,
     ticTacToeBoardPresenter: TicTacToeBoardPresenter,
-): Spec<BotState, BotEvent<Event>, any> {
-    const specs: Spec<State, Event, any>[] = [
+): Spec<BotModule, BotState, BotEvent<Event>, any> {
+    const gameSpecs: Spec<Game<State, Event>, State, Event, any>[] = [
         {
-            module: new RetryModule(new RockPaperScissorsGame({ randomizer })),
-            renderer: new RetryModuleRenderer(
-                new RockPaperScissorsGameRenderer(),
-            ),
-            minifier: new RetryModuleMinifier(
-                new RockPaperScissorsGameMinifier(),
-            ),
+            module: new RockPaperScissorsGame({ randomizer }),
+            renderer: new RockPaperScissorsGameRenderer(),
+            minifier: new RockPaperScissorsGameMinifier(),
         },
         {
-            module: new RetryModule(new TicTacToeGame({ randomizer })),
-            renderer: new RetryModuleRenderer(
-                new TicTacToeGameRenderer({
-                    boardPresenter: ticTacToeBoardPresenter,
-                }),
-            ),
+            module: new TicTacToeGame({ randomizer }),
+            renderer: new TicTacToeGameRenderer({
+                boardPresenter: ticTacToeBoardPresenter,
+            }),
             minifier: new TicTacToeGameMinifier(),
         },
     ]
+    const specs = gameSpecs.map(retrySpecOf)
     return {
         module: new BotModule(specs.map((spec) => spec.module)),
         renderer: new BotRenderer(specs.map((spec) => spec.renderer)),
