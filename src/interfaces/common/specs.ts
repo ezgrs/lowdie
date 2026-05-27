@@ -18,11 +18,16 @@ import { RockPaperScissorsGameMinifier } from "@/domain/minifiers/RockPaperSciss
 import { TicTacToeGameMinifier } from "@/domain/minifiers/TicTacToeGameMinifier.js"
 import { BotMinifier } from "@/domain/minifiers/BotMinifier.js"
 import { MinifiedModule } from "@/domain/modules/MinifiedModule.js"
+import { Minifier } from "@/domain/minifiers/Minifier.js"
 
 type Args<B extends boolean> = {
     randomizer: Randomizer
     ticTacToeBoardPresenter: TicTacToeBoardPresenter
     minified: B
+}
+
+type Spec<S extends State, E extends Event, ME> = ModuleSpec<S, E> & {
+    minifier: Minifier<S, E, ME>
 }
 
 export function createBotSpec(
@@ -39,7 +44,6 @@ export function createBotSpec<B extends boolean>(
                 module: spec.module,
                 minifier: spec.minifier,
             }),
-            minifier: spec.minifier,
             renderer: spec.renderer,
         }
     }
@@ -49,8 +53,8 @@ export function createBotSpec<B extends boolean>(
 function botSpecOf(
     randomizer: Randomizer,
     ticTacToeBoardPresenter: TicTacToeBoardPresenter,
-): ModuleSpec<BotState, BotEvent<Event>> {
-    const specs: ModuleSpec<State, Event>[] = [
+): Spec<BotState, BotEvent<Event>, any> {
+    const specs: Spec<State, Event, any>[] = [
         {
             module: new RetryModule(new RockPaperScissorsGame({ randomizer })),
             renderer: new RetryModuleRenderer(
