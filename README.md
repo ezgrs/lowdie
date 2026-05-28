@@ -10,7 +10,7 @@ Here's Lowdie (pronounced low as in "low temperature" + dee as in the letter D):
 
 <img alt="A Lowdie bot" height="300" src="https://i.imgur.com/AgvVOsg.jpg" title="Lowdie"/>
 
-It can play rock-paper-scissors and tic-tac-toe. It's learning how to play Battleship.
+It can play rock-paper-scissors, tic-tac-toe and blackjack.
 
 ## Overview
 
@@ -29,6 +29,9 @@ flowchart TD
         end
         subgraph RetryRPS["Retry Module"]
             RockPaperScissors["Rock-Paper-Scissors Module"]
+        end
+        subgraph RetryRPS["Retry Module"]
+            Blackjack["Blackjack Module"]
         end
     end
 ```
@@ -124,7 +127,7 @@ npm run cli
 
 #### As a client
 
-Interact with the bot by sending `/start` to [@lowdiebot](https://t.me/lowdiebot) (currently offline).
+Interact with the bot by sending `/start` to [@lowdiebot](https://t.me/lowdiebot).
 
 #### As a host
 

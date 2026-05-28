@@ -10,7 +10,9 @@ export class BotRenderer implements Renderer<BotState, BotEvent<any>> {
         if (isBotEvent(event)) {
             switch (event.type) {
                 case "userSelected":
-                    return [t("rps:title"), t("ttt:title")][event.index]!
+                    return [t("rps:title"), t("ttt:title"), "blackjack"][
+                        event.index
+                    ]!
             }
         }
         switch (state.type) {

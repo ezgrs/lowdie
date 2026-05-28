@@ -25,6 +25,9 @@ import { RetryModuleEvent } from "@/domain/events/RetryModuleEvent.js"
 import { Module } from "@/domain/modules/Module.js"
 import { Renderer } from "@/application/ports/Renderer.js"
 import { Game } from "@/domain/modules/Game.js"
+import { BlackjackGame } from "@/application/use-cases/games/BlackjackGame.js"
+import { BlackjackGameRenderer } from "../renderers/blackjack.js"
+import { BlackjackGameMinifier } from "@/domain/minifiers/BlackjackGameMinifier.js"
 
 type Args<B extends boolean> = {
     randomizer: Randomizer
@@ -87,6 +90,11 @@ function botSpecOf(
                 boardPresenter: ticTacToeBoardPresenter,
             }),
             minifier: new TicTacToeGameMinifier(),
+        },
+        {
+            module: new BlackjackGame({ randomizer }),
+            renderer: new BlackjackGameRenderer(),
+            minifier: new BlackjackGameMinifier(),
         },
     ]
     const specs = gameSpecs.map(retrySpecOf)
