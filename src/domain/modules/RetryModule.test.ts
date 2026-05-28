@@ -4,7 +4,7 @@ import { RetryModule } from "./RetryModule.js"
 let wrappedGame: {
     getInitialState: ReturnType<typeof jest.fn>
     applyEvent: ReturnType<typeof jest.fn>
-    getAction: ReturnType<typeof jest.fn>
+    getPrompt: ReturnType<typeof jest.fn>
     gameResultOf: ReturnType<typeof jest.fn>
 }
 
@@ -14,7 +14,7 @@ beforeEach(() => {
     wrappedGame = {
         getInitialState: jest.fn(),
         applyEvent: jest.fn(),
-        getAction: jest.fn(),
+        getPrompt: jest.fn(),
         gameResultOf: jest.fn(),
     }
 
@@ -222,7 +222,7 @@ describe("applyEvent", () => {
 describe("getAction", () => {
     describe("when wrapped action is select", () => {
         test("should wrap select choices as sub events", () => {
-            wrappedGame.getAction.mockReturnValue({
+            wrappedGame.getPrompt.mockReturnValue({
                 type: "select",
                 choices: [{ type: "moveA" }, { type: "moveB" }],
             })
@@ -257,7 +257,7 @@ describe("getAction", () => {
 
     describe("when wrapped action is input", () => {
         test("should wrap parser results as sub events", () => {
-            wrappedGame.getAction.mockReturnValue({
+            wrappedGame.getPrompt.mockReturnValue({
                 type: "input",
                 parser: (input: string) => ({
                     type: "submitted",
